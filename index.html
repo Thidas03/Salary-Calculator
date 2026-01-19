@@ -3,186 +3,285 @@
 <head>
 <meta charset="UTF-8">
 <title>Pathumi Garment Salary Calculator</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
-    body {
-        font-family: 'Roboto', sans-serif;
-        background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-        margin: 0;
-        padding: 50px 0;
-    }
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    margin: 0;
+    padding: 40px 0;
+}
 
-    .container {
-        max-width: 600px;
-        background: #ffffff;
-        margin: auto;
-        padding: 35px 45px;
-        border-radius: 20px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-        transition: 0.3s;
-    }
+.container {
+    max-width: 800px;
+    background: #fff;
+    margin: auto;
+    padding: 35px 45px;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
 
-    .container:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-    }
+h2 {
+    text-align: center;
+    font-weight: 700;
+}
 
-    h2 {
-        text-align: center;
-        margin-bottom: 35px;
-        font-weight: 700;
-        color: #333;
-    }
+.subtitle {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #555;
+}
 
-    label {
-        font-weight: 500;
-        margin-top: 15px;
-        display: block;
-        color: #555;
-    }
+.employee-box {
+    border: 2px solid #eee;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
 
-    input, select {
-        width: 100%;
-        padding: 14px;
-        margin-top: 6px;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-        font-size: 16px;
-        transition: 0.3s;
-    }
+label {
+    font-weight: 500;
+    margin-top: 12px;
+    display: block;
+}
 
-    input:focus, select:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 6px rgba(0,123,255,0.3);
-    }
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
 
-    button {
-        margin-top: 28px;
-        width: 100%;
-        padding: 16px;
-        background: #007bff;
-        color: white;
-        font-size: 18px;
-        font-weight: 500;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: 0.3s;
-    }
+button {
+    margin-top: 25px;
+    width: 100%;
+    padding: 16px;
+    background: #007bff;
+    color: #fff;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
 
-    button:hover {
-        background: #0056b3;
-    }
+button:hover {
+    background: #0056b3;
+}
 
-    .result {
-        margin-top: 30px;
-        background: #f1f5f9;
-        padding: 25px;
-        border-radius: 15px;
-        box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
-        font-size: 16px;
-        line-height: 1.7;
-    }
+.result {
+    margin-top: 20px;
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 15px;
+}
 
-    .result strong {
-        color: #333;
-    }
+.slip-title {
+    text-align: center;
+    font-weight: 700;
+}
 
-    .net-salary {
-        color: #28a745;
-        font-size: 20px;
-        font-weight: 700;
-    }
+.slip-date {
+    text-align: right;
+    font-size: 14px;
+}
 
+.table {
+    width: 100%;
+}
+
+.table td {
+    padding: 6px 0;
+}
+
+.hr {
+    border-top: 1px solid #ccc;
+    margin: 15px 0;
+}
+
+.net-salary {
+    font-size: 20px;
+    font-weight: 700;
+    color: #28a745;
+}
 </style>
 </head>
+
 <body>
 
 <div class="container">
-    <h2>Pathumi Garment Salary Calculator</h2>
+    <h2>Pathumi Garment</h2>
+    <div class="subtitle">Salary Calculator</div>
 
-    <label>Employee Name</label>
-    <input type="text" id="employeeName" placeholder="Enter employee name">
+    <!-- EMPLOYEE 1 -->
+    <div class="employee-box">
+        <h3>Employee 1</h3>
+        <label>Name</label><input id="name1">
+        <label>Attendance Days</label><input type="number" id="days1">
+        <label>Attendance Status</label>
+        <select id="att1">
+            <option value="full">Full</option>
+            <option value="normal">Normal</option>
+            <option value="absent">Absent</option>
+        </select>
+       <label>Daily Rate</label>
+<select id="rate1">
+    <option value="">Select Daily Rate</option>
+    <option value="1100">1100</option>
+    <option value="1200">1200</option>
+    <option value="1300">1300</option>
+    <option value="1400">1400</option>
+    <option value="1500">1500</option>
+    <option value="1600">1600</option>
+    <option value="1800">1800</option>
+</select>
 
-    <label>Attendance Days</label>
-    <input type="number" id="days" placeholder="e.g. 22">
+        <label>OT Hours</label><input type="number" id="ot1">
+        <label>OT Rate</label><input type="number" id="otRate1">
+        <label>Advance</label><input type="number" id="adv1">
+        <label>EPF %</label><input type="number" id="epf1" value="8">
+        <div id="result1" class="result"></div>
+    </div>
 
-    <label>Attendance Status</label>
-    <select id="attendance">
-        <option value="full">Full Attendance</option>
-        <option value="normal">Normal</option>
-        <option value="absent">Absent</option>
-    </select>
+    <!-- EMPLOYEE 2 -->
+    <div class="employee-box">
+        <h3>Employee 2</h3>
+        <label>Name</label><input id="name2">
+        <label>Attendance Days</label><input type="number" id="days2">
+        <label>Attendance Status</label>
+        <select id="att2">
+            <option value="full">Full</option>
+            <option value="normal">Normal</option>
+            <option value="absent">Absent</option>
+        </select>
+        <label>Daily Rate</label>
+<select id="rate2">
+    <option value="">Select Daily Rate</option>
+    <option value="1100">1100</option>
+    <option value="1200">1200</option>
+    <option value="1300">1300</option>
+    <option value="1400">1400</option>
+    <option value="1500">1500</option>
+    <option value="1600">1600</option>
+    <option value="1800">1800</option>
+</select>
+        <label>OT Hours</label><input type="number" id="ot2">
+        <label>OT Rate</label><input type="number" id="otRate2">
+        <label>Advance</label><input type="number" id="adv2">
+        <label>EPF %</label><input type="number" id="epf2" value="8">
+        <div id="result2" class="result"></div>
+    </div>
 
-    <label>Daily Rate</label>
-    <input type="number" id="dailyRate" placeholder="e.g. 2000">
-
-    <label>OT Hours</label>
-    <input type="number" id="otHours" placeholder="e.g. 15">
-
-    <label>OT Hour Rate</label>
-    <input type="number" id="otRate" placeholder="e.g. 500">
-
-    <label>Advance Payment</label>
-    <input type="number" id="advance" placeholder="e.g. 5000">
-
-    <label>EPF %</label>
-    <input type="number" id="epf" value="8">
-
-    <button onclick="calculateSalary()">Calculate Salary</button>
-
-    <div class="result" id="result"></div>
+    <button onclick="calculate()">Calculate Salary</button>
+    <button onclick="downloadPDF()">Download Both Slips (1 PDF)</button>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-function calculateSalary() {
-    let name = document.getElementById("employeeName").value || "N/A";
-    let days = Number(document.getElementById("days").value) || 0;
-    let dailyRate = Number(document.getElementById("dailyRate").value) || 0;
-    let otHours = Number(document.getElementById("otHours").value) || 0;
-    let otRate = Number(document.getElementById("otRate").value) || 0;
-    let advance = Number(document.getElementById("advance").value) || 0;
-    let epfPercent = Number(document.getElementById("epf").value) || 0;
-    let attendance = document.getElementById("attendance").value;
+function buildSlip(n,d,r,att,ot,otR,adv,epf,t) {
+    let basic = d * r;
+    let otPay = ot * otR;
+    let bonus = att === "full" ? 4000 : att === "normal" ? 2000 : 0;
+    let gross = basic + otPay + bonus;
+    let epfAmt = basic * (epf / 100);
+    let net = gross - epfAmt - adv;
+    const now = new Date();
+    const monthYear = now.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-    // Salary calculations
-    let basicSalary = days * dailyRate;
-    let otPayment = otHours * otRate;
+    // ===== MONTH LOGIC (NEW - ADD ONLY) =====
+const generatedDate = new Date();
 
-    // Attendance bonus
-    let attendanceBonus = 0;
-    if (attendance === "full") {
-        attendanceBonus = 4000;
-    } else if (attendance === "normal") {
-        attendanceBonus = 2000;
+const generatedMonth = generatedDate.toLocaleString('default', {
+    month: 'long',
+    year: 'numeric'
+});
+
+const salaryDate = new Date(generatedDate);
+salaryDate.setMonth(salaryDate.getMonth() - 1);
+
+const salaryForMonth = salaryDate.toLocaleString('default', {
+    month: 'long',
+    year: 'numeric'
+});
+
+
+    document.getElementById(t).innerHTML = `
+        <div class="slip-title">Pathumi Garment Salary Slip</div>
+        <div class="slip-date">
+    Issued Month: ${generatedMonth}<br>
+    Salary For: ${salaryForMonth}
+</div>
+
+        <div class="hr"></div>
+        <table class="table">
+            <tr><td><strong>Name</strong></td><td><strong>${n}</strong></td></tr>
+            <tr>
+  <td>Basic Salary (${d} days × ${r})</td>
+  <td>${basic.toFixed(2)}</td>
+</tr>
+<tr>
+  <td>OT Payment (${ot} hrs × ${otR})</td>
+  <td>${otPay.toFixed(2)}</td>
+</tr>
+            <tr><td>Attendance Bonus</td><td>${bonus.toFixed(2)}</td></tr>
+            <tr><td>EPF Deduction</td><td>${epfAmt.toFixed(2)}</td></tr>
+            <tr><td>Advance</td><td>${adv.toFixed(2)}</td></tr>
+        </table>
+        <div class="hr"></div>
+        <div class="net-salary">Net Salary: Rs. ${net.toFixed(2)}</div>
+    `;
+}
+
+function calculate() {
+    buildSlip(name1.value,+days1.value,+rate1.value,att1.value,+ot1.value,+otRate1.value,+adv1.value,+epf1.value,"result1");
+    buildSlip(name2.value,+days2.value,+rate2.value,att2.value,+ot2.value,+otRate2.value,+adv2.value,+epf2.value,"result2");
+}
+async function downloadPDF() {
+    if (result1.innerHTML === "" || result2.innerHTML === "") {
+        alert("Please calculate salary for both employees first.");
+        return;
     }
 
-    let grossSalary = basicSalary + otPayment + attendanceBonus;
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
 
-    // Deductions
-    let epfAmount = basicSalary * (epfPercent / 100);
-    let totalDeductions = epfAmount + advance;
+    async function capture(element) {
+        const temp = document.createElement("div");
+        temp.style.background = "#fff";
+        temp.style.padding = "15px";
+        temp.style.width = "700px";
+        temp.appendChild(element.cloneNode(true));
 
-    // Net salary
-    let netSalary = grossSalary - totalDeductions;
+        temp.style.position = "fixed";
+        temp.style.left = "-9999px";
+        document.body.appendChild(temp);
 
-    // Display result
-    document.getElementById("result").innerHTML = `
-        <strong>Employee Name:</strong> ${name}<br>
-        <strong>Basic Salary:</strong> ${basicSalary.toFixed(2)}<br>
-        <strong>OT Payment:</strong> ${otPayment.toFixed(2)}<br>
-        <strong>Attendance Bonus:</strong> ${attendanceBonus.toFixed(2)}<br>
-        <strong>Gross Salary:</strong> ${grossSalary.toFixed(2)}<br>
-        <hr>
-        <strong>EPF Deduction:</strong> ${epfAmount.toFixed(2)}<br>
-        <strong>Advance Deduction:</strong> ${advance.toFixed(2)}<br>
-        <strong>Total Deductions:</strong> ${totalDeductions.toFixed(2)}<br>
-        <hr>
-        <strong>Net Salary:</strong>
-        <span class="net-salary">${netSalary.toFixed(2)}</span>
-    `;
+        const canvas = await html2canvas(temp, { scale: 2 });
+        const imgData = canvas.toDataURL("image/png");
+
+        document.body.removeChild(temp);
+        return imgData;
+    }
+
+    const img1 = await capture(result1);
+    const img2 = await capture(result2);
+
+    // A4 page size: 210mm x 297mm
+    const pageWidth = 170;
+    const slipHeight = 120; // controlled height
+
+    // Employee 1 (top)
+    pdf.addImage(img1, "PNG", 10, 10, pageWidth, slipHeight);
+
+    // Employee 2 (bottom)
+    pdf.addImage(img2, "PNG", 10, 150, pageWidth, slipHeight);
+
+    pdf.save("Pathumi_Garment_Two_Employees_One_Page.pdf");
+
 }
 </script>
 
