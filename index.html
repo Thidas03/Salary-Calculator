@@ -1,293 +1,586 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>Pathumi Garment Salary Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathumi Garment Salary Calculator</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-<style>
-body {
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-    margin: 0;
-    padding: 40px 0;
-}
+    <style>
+        :root {
+            --primary-color: #4facfe;
+            --secondary-color: #00f2fe;
+            --accent-color: #ffffff;
+            --text-color: #333;
+            --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --input-border: #e0e0e0;
+            --danger-color: #ff6b6b;
+            --success-color: #2ecc71;
+        }
 
-.container {
-    max-width: 800px;
-    background: #fff;
-    margin: auto;
-    padding: 35px 45px;
-    border-radius: 20px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-}
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--bg-gradient);
+            margin: 0;
+            padding: 40px 20px;
+            color: var(--text-color);
+            min-height: 100vh;
+        }
 
-h2 {
-    text-align: center;
-    font-weight: 700;
-}
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
 
-.subtitle {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #555;
-}
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-.employee-box {
-    border: 2px solid #eee;
-    padding: 25px;
-    border-radius: 15px;
-    margin-bottom: 30px;
-}
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
 
-label {
-    font-weight: 500;
-    margin-top: 12px;
-    display: block;
-}
+        header .subtitle {
+            font-size: 1.1em;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
 
-input, select {
-    width: 100%;
-    padding: 12px;
-    margin-top: 6px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-}
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
 
-button {
-    margin-top: 25px;
-    width: 100%;
-    padding: 16px;
-    background: #007bff;
-    color: #fff;
-    font-size: 18px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-}
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-.result {
-    margin-top: 20px;
-    background: #f8fafc;
-    padding: 20px;
-    border-radius: 15px;
-}
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
 
-.slip-title {
-    text-align: center;
-    font-weight: 700;
-}
+        .btn-primary {
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
 
-.slip-date {
-    text-align: right;
-    font-size: 14px;
-}
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
 
-.hr {
-    border-top: 1px solid #ccc;
-    margin: 15px 0;
-}
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
 
-.net-salary {
-    font-size: 20px;
-    font-weight: 700;
-    color: #28a745;
-}
-</style>
+        .employee-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .employee-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            transition: transform 0.2s;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.25em;
+            color: #34495e;
+        }
+
+        .remove-btn {
+            background: transparent;
+            border: none;
+            color: #95a5a6;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .remove-btn:hover {
+            color: var(--danger-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            /* Fix width issues */
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .checkbox-wrapper input {
+            width: auto;
+        }
+
+        .result-section {
+            margin-top: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px dashed #ced4da;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-total {
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--success-color);
+            text-align: right;
+        }
+
+        /* PDF Generation overlay */
+        #pdf-container {
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            width: 210mm;
+            /* A4 width */
+        }
+
+        @media (max-width: 600px) {
+            .employee-list {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
-<h2>Pathumi Garment</h2>
-<div class="subtitle">Salary Calculator</div>
+    <div class="container">
+        <header>
+            <h1>Pathumi Garment</h1>
+            <div class="subtitle">Advanced Salary Calculator</div>
+        </header>
 
-<!-- EMPLOYEE 1 -->
-<div class="employee-box">
-<h3>Employee 1</h3>
-<label>Name</label><input id="name1">
-
-<label>Attendance Days</label><input type="number" id="days1">
-
-<label>Attendance Status</label>
-<select id="att1">
-<option value="15000">Super Full Print</option>
-<option value="5000">Half Print</option>
-<option value="4000">Full Down</option>
-<option value="2000">Half Down</option>
-<option value="0">Full Absent</option>
-</select>
-
-<label>Daily Rate</label>
-<select id="rate1">
-<option value="">Select</option>
-<option value="1100">1100</option>
-<option value="1200">1200</option>
-<option value="1300">1300</option>
-<option value="1400">1400</option>
-<option value="1500">1500</option>
-<option value="1600">1600</option>
-<option value="1800">1800</option>
-</select>
-
-<label>OT Hours</label><input type="number" id="ot1">
-<label>OT Rate</label><input type="number" id="otRate1">
-<label>Advance</label><input type="number" id="adv1">
-
-<label>
-<input type="checkbox" id="epfCheck1" checked onchange="toggleEPF(1)">
-EPF Applicable
-</label>
-<label>EPF %</label><input type="number" id="epf1" value="8">
-
-<div id="result1" class="result"></div>
-</div>
-
-<!-- EMPLOYEE 2 -->
-<div class="employee-box">
-<h3>Employee 2</h3>
-<label>Name</label><input id="name2">
-
-<label>Attendance Days</label><input type="number" id="days2">
-
-<label>Attendance Status</label>
-<select id="att2">
-<option value="15000">Super Full Print</option>
-<option value="5000">Half Print</option>
-<option value="4000">Full Down</option>
-<option value="2000">Half Down</option>
-<option value="0">Full Absent</option>
-</select>
-
-<label>Daily Rate</label>
-<select id="rate2">
-<option value="">Select</option>
-<option value="1100">1100</option>
-<option value="1200">1200</option>
-<option value="1300">1300</option>
-<option value="1400">1400</option>
-<option value="1500">1500</option>
-<option value="1600">1600</option>
-<option value="1800">1800</option>
-</select>
-
-<label>OT Hours</label><input type="number" id="ot2">
-<label>OT Rate</label><input type="number" id="otRate2">
-<label>Advance</label><input type="number" id="adv2">
-
-<label>
-<input type="checkbox" id="epfCheck2" checked onchange="toggleEPF(2)">
-EPF Applicable
-</label>
-<label>EPF %</label><input type="number" id="epf2" value="8">
-
-<div id="result2" class="result"></div>
-</div>
-
-<button onclick="calculate()">Calculate Salary</button>
-<button onclick="downloadPDF()">Download Both Slips (1 PDF)</button>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<script>
-function toggleEPF(emp) {
-    const chk = document.getElementById("epfCheck" + emp);
-    const epf = document.getElementById("epf" + emp);
-
-    if (!chk.checked) {
-        epf.value = 0;
-        epf.disabled = true;
-    } else {
-        epf.value = 8;
-        epf.disabled = false;
-    }
-}
-
-function buildSlip(n,d,r,att,ot,otR,adv,epf,t) {
-    let basic = d * r;
-    let otPay = ot * otR;
-    let bonus = +att;
-    let epfAmt = epf > 0 ? basic * (epf / 100) : 0;
-    let net = basic + otPay + bonus - epfAmt - adv;
-
-    const generatedDate = new Date();
-    const generatedMonth = generatedDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-    const salaryDate = new Date(generatedDate);
-    salaryDate.setMonth(salaryDate.getMonth() - 1);
-    const salaryForMonth = salaryDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-
-    document.getElementById(t).innerHTML = `
-    <div class="slip-title">Pathumi Garment Salary Slip</div>
-        <div class="slip-date">
-        Issued Month: ${generatedMonth}<br>
-        Salary For: ${salaryForMonth}
+        <div class="controls">
+            <button class="btn btn-primary" onclick="addEmployee()">
+                <span class="material-icons">add</span> Add Employee
+            </button>
+            <div>
+                <button class="btn btn-success" onclick="calculateAll()">
+                    <span class="material-icons">calculate</span> Calculate All
+                </button>
+                <button class="btn btn-danger" onclick="downloadAllPDF()">
+                    <span class="material-icons">picture_as_pdf</span> Download All Slips
+                </button>
+                <button class="btn btn-primary" style="background: #6c757d;" onclick="clearAllData()">
+                    <span class="material-icons">delete_sweep</span> Reset
+                </button>
+            </div>
         </div>
-    <div class="hr"></div>
-    <table width="100%">
-      <tr><td><strong>Name</strong></td><td><strong>${n}</strong></td></tr>
-      <tr><td>Basic Salary (${d} days × ${r})</td><td>${basic.toFixed(2)}</td></tr>
-      <tr><td>OT Payment (${ot} hrs × ${otR})</td><td>${otPay.toFixed(2)}</td></tr>
-      <tr><td>Attendance Bonus</td><td>${bonus.toFixed(2)}</td></tr>
-      <tr><td>EPF Deduction</td><td>${epfAmt > 0 ? epfAmt.toFixed(2) : "Not Applicable"}</td></tr>
-      <tr><td>Advance</td><td>${adv.toFixed(2)}</td></tr>
-    </table>
-    <div class="hr"></div>
-    <div class="net-salary">Net Salary: Rs. ${net.toFixed(2)}</div>
-    `;
-}
 
-function calculate() {
-    buildSlip(name1.value,+days1.value,+rate1.value,att1.value,+ot1.value,+otRate1.value,+adv1.value,+epf1.value,"result1");
-    buildSlip(name2.value,+days2.value,+rate2.value,att2.value,+ot2.value,+otRate2.value,+adv2.value,+epf2.value,"result2");
-}
+        <div id="employeeList" class="employee-list">
+            <!-- Employee Cards will be injected here -->
+        </div>
+    </div>
 
-async function downloadPDF() {
-    if (result1.innerHTML === "" || result2.innerHTML === "") {
-        alert("Please calculate salary for both employees first.");
-        return;
-    }
+    <!-- Hidden container for PDF generation -->
+    <div id="pdf-container"></div>
 
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF("p", "mm", "a4");
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    async function capture(element) {
-        const temp = document.createElement("div");
-        temp.style.background = "#fff";
-        temp.style.padding = "15px";
-        temp.style.width = "700px";
-        temp.appendChild(element.cloneNode(true));
+    <script>
+        // --- State Management ---
+        let employees = [];
 
-        temp.style.position = "fixed";
-        temp.style.left = "-9999px";
-        document.body.appendChild(temp);
+        // Load data from LocalStorage on startup
+        window.onload = function () {
+            const storedData = localStorage.getItem('pg_salary_employees');
+            if (storedData) {
+                employees = JSON.parse(storedData);
+            } else {
+                // Default initial state with one empty employee
+                addEmployee(false);
+            }
+            renderEmployees();
+        };
 
-        const canvas = await html2canvas(temp, { scale: 2 });
-        const imgData = canvas.toDataURL("image/png");
+        function saveData() {
+            localStorage.setItem('pg_salary_employees', JSON.stringify(employees));
+        }
 
-        document.body.removeChild(temp);
-        return imgData;
-    }
+        function addEmployee(save = true) {
+            const id = Date.now().toString(); // Simple unique ID
+            employees.push({
+                id: id,
+                name: '',
+                days: 0,
+                attStatus: '15000',
+                rate: '',
+                otHours: 0,
+                otRate: 0,
+                advance: 0,
+                epfApplicable: true,
+                epfPercent: 8,
+                result: null // Store calculation result
+            });
+            if (save) saveData();
+            renderEmployees();
+        }
 
-    const img1 = await capture(result1);
-    const img2 = await capture(result2);
+        function removeEmployee(id) {
+            if (confirm("Are you sure you want to remove this employee?")) {
+                employees = employees.filter(emp => emp.id !== id);
+                saveData();
+                renderEmployees();
+            }
+        }
 
-    // A4 page size: 210mm x 297mm
-    const pageWidth = 170;
-    const slipHeight = 120; // controlled height
+        function clearAllData() {
+            if (confirm("This will delete ALL employee data. Are you sure?")) {
+                employees = [];
+                addEmployee(); // Add one fresh
+            }
+        }
 
-    // Employee 1 (top)
-    pdf.addImage(img1, "PNG", 10, 10, pageWidth, slipHeight);
+        function updateEmployee(id, field, value) {
+            const emp = employees.find(e => e.id === id);
+            if (emp) {
+                emp[field] = value;
+                // Clear previous result on edit to indicate need for recalculation
+                // emp.result = null; 
+                saveData();
+                // We don't re-render entire list on every keystroke to maintain focus
+                // But we do need to update the specific calculation if it exists
+                if (field === 'epfApplicable') {
+                    // Force re-render for checkbox logic usually
+                    renderEmployees();
+                }
+            }
+        }
 
-    // Employee 2 (bottom)
-    pdf.addImage(img2, "PNG", 10, 150, pageWidth, slipHeight);
+        // --- Rendering ---
+        function renderEmployees() {
+            const container = document.getElementById('employeeList');
+            container.innerHTML = '';
 
-    pdf.save("Pathumi_Garment_Two_Employees_One_Page.pdf");
+            employees.forEach((emp, index) => {
+                const card = document.createElement('div');
+                card.className = 'employee-card';
 
-}
-</script>
+                // Should EPF input be disabled?
+                const epfDisabled = !emp.epfApplicable;
+
+                card.innerHTML = `
+                <div class="card-header">
+                    <h3>Employee ${index + 1}</h3>
+                    <button class="remove-btn" onclick="removeEmployee('${emp.id}')">&times;</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" value="${emp.name}" oninput="updateEmployee('${emp.id}', 'name', this.value)" placeholder="Enter Name">
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label>Days</label>
+                        <input type="number" value="${emp.days}" oninput="updateEmployee('${emp.id}', 'days', +this.value)">
+                    </div>
+                    <div class="col">
+                        <label>Rate</label>
+                        <select onchange="updateEmployee('${emp.id}', 'rate', +this.value)">
+                            <option value="" ${emp.rate === '' ? 'selected' : ''}>Select</option>
+                            <option value="1100" ${emp.rate === 1100 ? 'selected' : ''}>1100</option>
+                            <option value="1200" ${emp.rate === 1200 ? 'selected' : ''}>1200</option>
+                            <option value="1300" ${emp.rate === 1300 ? 'selected' : ''}>1300</option>
+                            <option value="1400" ${emp.rate === 1400 ? 'selected' : ''}>1400</option>
+                            <option value="1500" ${emp.rate === 1500 ? 'selected' : ''}>1500</option>
+                            <option value="1600" ${emp.rate === 1600 ? 'selected' : ''}>1600</option>
+                            <option value="1800" ${emp.rate === 1800 ? 'selected' : ''}>1800</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Attendance Status</label>
+                    <select onchange="updateEmployee('${emp.id}', 'attStatus', this.value)">
+                        <option value="15000" ${emp.attStatus === '15000' ? 'selected' : ''}>Super Full Print (15000)</option>
+                        <option value="5000" ${emp.attStatus === '5000' ? 'selected' : ''}>Half Print (5000)</option>
+                        <option value="4000" ${emp.attStatus === '4000' ? 'selected' : ''}>Full Down (4000)</option>
+                        <option value="2000" ${emp.attStatus === '2000' ? 'selected' : ''}>Half Down (2000)</option>
+                        <option value="0" ${emp.attStatus === '0' ? 'selected' : ''}>Full Absent (0)</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label>OT Hours</label>
+                        <input type="number" value="${emp.otHours}" oninput="updateEmployee('${emp.id}', 'otHours', +this.value)">
+                    </div>
+                    <div class="col">
+                        <label>OT Rate</label>
+                        <input type="number" value="${emp.otRate}" oninput="updateEmployee('${emp.id}', 'otRate', +this.value)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                     <label>Advance</label>
+                     <input type="number" value="${emp.advance}" oninput="updateEmployee('${emp.id}', 'advance', +this.value)">
+                </div>
+
+                <div class="row" style="align-items: center;">
+                    <div class="col">
+                         <div class="checkbox-wrapper">
+                            <input type="checkbox" ${emp.epfApplicable ? 'checked' : ''} onchange="updateEmployee('${emp.id}', 'epfApplicable', this.checked)">
+                            <label style="margin:0">EPF</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <input type="number" value="${emp.epfPercent}" ${epfDisabled ? 'disabled' : ''} oninput="updateEmployee('${emp.id}', 'epfPercent', +this.value)" placeholder="%">
+                    </div>
+                </div>
+
+                <div id="result-${emp.id}" class="result-section" style="display: none;">
+                    <!-- Result injected here -->
+                </div>
+            `;
+                container.appendChild(card);
+
+                // If there's a stored result, show it
+                if (emp.result) {
+                    showResult(emp.id, emp.result);
+                }
+            });
+        }
+
+        // --- Calculations ---
+        function calculateAll() {
+            let allValid = true;
+            employees.forEach(emp => {
+                if (!emp.rate) allValid = false; // Basic validation
+
+                const basic = emp.days * (Number(emp.rate) || 0);
+                const otPay = emp.otHours * emp.otRate;
+                const bonus = Number(emp.attStatus);
+                const epfAmt = emp.epfApplicable ? basic * (emp.epfPercent / 100) : 0;
+                const net = basic + otPay + bonus - epfAmt - emp.advance;
+
+                const resultObj = {
+                    basic, otPay, bonus, epfAmt, net
+                };
+
+                emp.result = resultObj;
+                showResult(emp.id, resultObj);
+            });
+
+            saveData(); // Save results too
+
+            if (!allValid) {
+                alert("Some employees are missing Daily Rates. Calculation performed with defaults.");
+            }
+        }
+
+        function showResult(id, res) {
+            const resDiv = document.getElementById(`result-${id}`);
+            if (!resDiv) return;
+
+            resDiv.style.display = 'block';
+            resDiv.innerHTML = `
+            <div class="result-row"><span>Basic</span><span>${res.basic.toFixed(2)}</span></div>
+            <div class="result-row"><span>OT</span><span>${res.otPay.toFixed(2)}</span></div>
+            <div class="result-row"><span>Bonus</span><span>${res.bonus.toFixed(2)}</span></div>
+            <div class="result-row"><span>EPF (-)</span><span>${res.epfAmt.toFixed(2)}</span></div>
+            <div class="result-row"><span>Advance (-)</span><span>${employees.find(e => e.id === id).advance.toFixed(2)}</span></div>
+            <div class="result-total">Net: Rs. ${res.net.toFixed(2)}</div>
+        `;
+        }
+
+        // --- PDF Generation ---
+        async function downloadAllPDF() {
+            // Ensure calculations are up to date
+            calculateAll();
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF("p", "mm", "a4");
+
+            // Date Logic
+            const today = new Date();
+            const issuedMonthStr = today.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            const prevMonthDate = new Date();
+            prevMonthDate.setMonth(today.getMonth() - 1);
+            const salaryMonthStr = prevMonthDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            // Helper to generate HTML for a single slip
+            const createSlipHTML = (emp, res) => {
+                return `
+            <div style="font-family: 'Roboto', sans-serif; padding: 20px; background: #fff; border: 1px solid #000; width: 600px; margin-bottom: 20px;">
+                <div style="text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 10px;">Pathumi Garment Salary Slip</div>
+                 <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px;">
+                    <div><strong>Salary For:</strong> ${salaryMonthStr}</div>
+                    <div><strong>Issued:</strong> ${issuedMonthStr}</div>
+                 </div>
+                <hr style="border-top: 1px solid #ccc;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <tr><td style="padding: 5px 0;"><strong>Name:</strong></td><td style="text-align: right;"><strong>${emp.name || "Unknown"}</strong></td></tr>
+                    <tr><td style="padding: 5px 0;">Basic (${emp.days} days @ ${emp.rate})</td><td style="text-align: right;">${res.basic.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 5px 0;">OT (${emp.otHours} hrs @ ${emp.otRate})</td><td style="text-align: right;">${res.otPay.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 5px 0;">Bonus</td><td style="text-align: right;">${res.bonus.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 5px 0;">EPF Deduction</td><td style="text-align: right;">-${res.epfAmt.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 5px 0;">Advance</td><td style="text-align: right;">-${emp.advance.toFixed(2)}</td></tr>
+                </table>
+                <hr style="border-top: 1px solid #ccc; margin: 10px 0;">
+                <div style="text-align: right; font-size: 16px; font-weight: bold; color: #000;">Net Salary: Rs. ${res.net.toFixed(2)}</div>
+            </div>
+            `;
+            };
+
+            const pdfContainer = document.getElementById('pdf-container');
+            pdfContainer.innerHTML = '';
+
+            // Prepare all slips in the hidden container
+            employees.forEach(emp => {
+                if (emp.result) {
+                    const wrapper = document.createElement('div');
+                    wrapper.innerHTML = createSlipHTML(emp, emp.result);
+                    pdfContainer.appendChild(wrapper);
+                }
+            });
+
+            // Wait for DOM
+            await new Promise(r => setTimeout(r, 100));
+
+            const slips = pdfContainer.children;
+            let yOffset = 10;
+            const pageHeight = 297; // A4 mm
+            const slipHeightMM = 100; // Approx height of one slip in mm
+
+            for (let i = 0; i < slips.length; i++) {
+                // 2 slips per page basically
+                if (yOffset + slipHeightMM > pageHeight) {
+                    pdf.addPage();
+                    yOffset = 10;
+                }
+
+                const canvas = await html2canvas(slips[i], { scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+                // Scale width to fit A4 margins
+                const pdfWidth = 190; // 10mm margins
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                pdf.addImage(imgData, 'PNG', 10, yOffset, pdfWidth, pdfHeight);
+
+                yOffset += pdfHeight + 10; // spacing
+            }
+
+            // Cleanup
+            pdfContainer.innerHTML = '';
+
+            pdf.save(`Pathumi_Garment_Returns_${issuedMonthStr}.pdf`);
+        }
+    </script>
 
 </body>
+
 </html>
