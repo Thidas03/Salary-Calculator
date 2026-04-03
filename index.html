@@ -397,7 +397,9 @@
                             <option value="1400" ${emp.rate === 1400 ? 'selected' : ''}>1400</option>
                             <option value="1500" ${emp.rate === 1500 ? 'selected' : ''}>1500</option>
                             <option value="1600" ${emp.rate === 1600 ? 'selected' : ''}>1600</option>
+                            <option value="1700" ${emp.rate === 1700 ? 'selected' : ''}>1700</option>
                             <option value="1800" ${emp.rate === 1800 ? 'selected' : ''}>1800</option>
+                            <option value="2000" ${emp.rate === 2000 ? 'selected' : ''}>2000</option>
                         </select>
                     </div>
                 </div>
@@ -406,9 +408,8 @@
                     <label>Attendance Status</label>
                     <select onchange="updateEmployee('${emp.id}', 'attStatus', this.value)">
                         <option value="15000" ${emp.attStatus === '15000' ? 'selected' : ''}>Super Full Print (15000)</option>
-                        <option value="5000" ${emp.attStatus === '5000' ? 'selected' : ''}>Half Print (5000)</option>
-                        <option value="4000" ${emp.attStatus === '4000' ? 'selected' : ''}>Full Down (4000)</option>
-                        <option value="2000" ${emp.attStatus === '2000' ? 'selected' : ''}>Half Down (2000)</option>
+                        <option value="5000" ${emp.attStatus === '5000' ? 'selected' : ''}>Full Down (5000)</option>
+                        <option value="4000" ${emp.attStatus === '4000' ? 'selected' : ''}>Half Down (4000)</option>
                         <option value="0" ${emp.attStatus === '0' ? 'selected' : ''}>Full Absent (0)</option>
                     </select>
                 </div>
@@ -566,7 +567,7 @@
                 const canvas = await html2canvas(slips[i], { scale: 2 });
                 const imgData = canvas.toDataURL('image/png');
                 // Scale width to fit A4 margins
-                const pdfWidth = 190; // 10mm margins
+                    const pdfWidth = 190; // 10mm margins
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
                 pdf.addImage(imgData, 'PNG', 10, yOffset, pdfWidth, pdfHeight);
