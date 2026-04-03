@@ -516,23 +516,24 @@
             // Helper to generate HTML for a single slip
             const createSlipHTML = (emp, res) => {
                 return `
-            <div style="font-family: 'Roboto', sans-serif; padding: 20px; background: #fff; border: 1px solid #000; width: 600px; margin-bottom: 20px;">
-                <div style="text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 10px;">Pathumi Garment Salary Slip</div>
-                 <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px;">
+            <div style="font-family: 'Roboto', sans-serif; padding: 25px; background: #fff; border: 1px solid #000; width: 600px; margin-bottom: 25px;">
+                <div style="text-align: center; font-weight: bold; font-size: 22px; margin-bottom: 15px;">Pathumi Garment Salary Slip</div>
+                 <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;">
                     <div><strong>Salary For:</strong> ${salaryMonthStr}</div>
                     <div><strong>Issued:</strong> ${issuedMonthStr}</div>
                  </div>
                 <hr style="border-top: 1px solid #ccc;">
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                    <tr><td style="padding: 5px 0;"><strong>Name:</strong></td><td style="text-align: right;"><strong>${emp.name || "Unknown"}</strong></td></tr>
-                    <tr><td style="padding: 5px 0;">Basic (${emp.days} days @ ${emp.rate})</td><td style="text-align: right;">${res.basic.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 5px 0;">OT (${emp.otHours} hrs @ ${emp.otRate})</td><td style="text-align: right;">${res.otPay.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 5px 0;">Bonus</td><td style="text-align: right;">${res.bonus.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 5px 0;">EPF Deduction</td><td style="text-align: right;">-${res.epfAmt.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 5px 0;">Advance</td><td style="text-align: right;">-${emp.advance.toFixed(2)}</td></tr>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 16px;">
+                    <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td style="text-align: right;"><strong>${emp.name || "Unknown"}</strong></td></tr>
+                    <tr><td style="padding: 8px 0;">Basic (${emp.days} days @ ${emp.rate})</td><td style="text-align: right;">${res.basic.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">OT (${emp.otHours} hrs @ ${emp.otRate})</td><td style="text-align: right;">${res.otPay.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">Bonus</td><td style="text-align: right;">${res.bonus.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">EPF Deduction</td><td style="text-align: right;">-${res.epfAmt.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">Advance</td><td style="text-align: right;">-${emp.advance.toFixed(2)}</td></tr>
                 </table>
-                <hr style="border-top: 1px solid #ccc; margin: 10px 0;">
-                <div style="text-align: right; font-size: 16px; font-weight: bold; color: #000;">Net Salary: Rs. ${res.net.toFixed(2)}</div>
+                <hr style="border-top: 1px solid #ccc; margin: 12px 0;">
+                <div style="text-align: right; font-size: 20px; font-weight: bold; color: #000;">Net Salary: Rs. ${res.net.toFixed(2)}</div>
+                <div style="text-align: center; font-size: 18px; font-weight: 500; color: #2c3e50; margin-top: 20px;">සුභ අලුත් අවුරුද්දක් වේවා!</div>
             </div>
             `;
             };
