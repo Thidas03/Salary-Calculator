@@ -504,14 +504,14 @@
 
             resDiv.style.display = 'block';
             resDiv.innerHTML = `
-            <div class="result-row"><span>Basic</span><span>${res.basic.toFixed(2)}</span></div>
-            <div class="result-row"><span>OT</span><span>${res.otPay.toFixed(2)}</span></div>
-            <div class="result-row"><span>Attendance Status</span><span>${res.attAllowance.toFixed(2)}</span></div>
-            <div class="result-row"><span>Bonus</span><span>${res.bonus.toFixed(2)}</span></div>
-            <div class="result-row"><span>Jan & Feb Increase</span><span>${res.janFebIncrease.toFixed(2)}</span></div>
-            <div class="result-row"><span>EPF (-)</span><span>${res.epfAmt.toFixed(2)}</span></div>
-            <div class="result-row"><span>Advance (-)</span><span>${employees.find(e => e.id === id).advance.toFixed(2)}</span></div>
-            <div class="result-total">Net: Rs. ${res.net.toFixed(2)}</div>
+            <div class="result-row"><span>Basic</span><span>${(res.basic || 0).toFixed(2)}</span></div>
+            <div class="result-row"><span>OT</span><span>${(res.otPay || 0).toFixed(2)}</span></div>
+            <div class="result-row"><span>Attendance Status</span><span>${(res.attAllowance || 0).toFixed(2)}</span></div>
+            <div class="result-row"><span>Bonus</span><span>${(res.bonus || 0).toFixed(2)}</span></div>
+            <div class="result-row"><span>Jan & Feb Increase</span><span>${(res.janFebIncrease || 0).toFixed(2)}</span></div>
+            <div class="result-row"><span>EPF (-)</span><span>${(res.epfAmt || 0).toFixed(2)}</span></div>
+            <div class="result-row"><span>Advance (-)</span><span>${(employees.find(e => e.id === id).advance || 0).toFixed(2)}</span></div>
+            <div class="result-total">Net: Rs. ${(res.net || 0).toFixed(2)}</div>
         `;
         }
 
@@ -543,16 +543,16 @@
                 <hr style="border-top: 1px solid #ccc;">
                 <table style="width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 16px;">
                     <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td style="text-align: right;"><strong>${emp.name || "Unknown"}</strong></td></tr>
-                    <tr><td style="padding: 8px 0;">Basic (${emp.days} days @ ${emp.rate})</td><td style="text-align: right;">${res.basic.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">OT (${emp.otHours} hrs @ ${emp.otRate})</td><td style="text-align: right;">${res.otPay.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">Attendance Status</td><td style="text-align: right;">${res.attAllowance.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">Bonus (30000 - (${emp.absentDays || 0} * 1000))<br><span style="font-size: 13px; color: #555;">(30000 - (නොපැමිණි දින ගණන * 1000))</span></td><td style="text-align: right;">${res.bonus.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">Increase Amount of January & February<br><span style="font-size: 13px; color: #555;">(ජනවාරි සහ පෙබරවාරි වැටුප් වැඩිවීම)</span></td><td style="text-align: right;">${res.janFebIncrease.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">EPF Deduction</td><td style="text-align: right;">-${res.epfAmt.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">Advance</td><td style="text-align: right;">-${emp.advance.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">Basic (${emp.days || 0} days @ ${emp.rate || 0})</td><td style="text-align: right;">${(res.basic || 0).toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">OT (${emp.otHours || 0} hrs @ ${emp.otRate || 0})</td><td style="text-align: right;">${(res.otPay || 0).toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">Attendance Status</td><td style="text-align: right;">${(res.attAllowance || 0).toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">Bonus (30000 - (${emp.absentDays || 0} * 1000))<br><span style="font-size: 13px; color: #555;">(30000 - (නොපැමිණි දින ගණන * 1000))</span></td><td style="text-align: right;">${(res.bonus || 0).toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">Increase Amount of January & February<br><span style="font-size: 13px; color: #555;">(ජනවාරි සහ පෙබරවාරි වැටුප් වැඩිවීම)</span></td><td style="text-align: right;">${(res.janFebIncrease || 0).toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">EPF Deduction</td><td style="text-align: right;">-${(res.epfAmt || 0).toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">Advance</td><td style="text-align: right;">-${(emp.advance || 0).toFixed(2)}</td></tr>
                 </table>
                 <hr style="border-top: 1px solid #ccc; margin: 12px 0;">
-                <div style="text-align: right; font-size: 20px; font-weight: bold; color: #000;">Net Salary: Rs. ${res.net.toFixed(2)}</div>
+                <div style="text-align: right; font-size: 20px; font-weight: bold; color: #000;">Net Salary: Rs. ${(res.net || 0).toFixed(2)}</div>
                 <div style="text-align: center; font-size: 18px; font-weight: 500; color: #2c3e50; margin-top: 20px;">සුභ අලුත් අවුරුද්දක් වේවා!</div>
             </div>
             `;
