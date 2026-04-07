@@ -316,6 +316,8 @@
                 name: '',
                 days: 0,
                 attStatus: '15000',
+                absentDays: 0,
+                janFebIncrease: 0,
                 rate: '',
                 otHours: 0,
                 otRate: 0,
@@ -404,14 +406,25 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label>Attendance Status</label>
                     <select onchange="updateEmployee('${emp.id}', 'attStatus', this.value)">
-                        <option value="15000" ${emp.attStatus === '15000' ? 'selected' : ''}>Super Full Print (15000)</option>
+                        <option value="15000" ${emp.attStatus === '15000' || emp.attStatus === undefined ? 'selected' : ''}>Super Full Print (15000)</option>
                         <option value="5000" ${emp.attStatus === '5000' ? 'selected' : ''}>Full Down (5000)</option>
                         <option value="4000" ${emp.attStatus === '4000' ? 'selected' : ''}>Half Down (4000)</option>
                         <option value="0" ${emp.attStatus === '0' ? 'selected' : ''}>Full Absent (0)</option>
                     </select>
+                </div>
+
+                <div class="row" style="margin-bottom: 15px;">
+                    <div class="col">
+                        <label>Absent Days (For Bonus)</label>
+                        <input type="number" value="${emp.absentDays || 0}" oninput="updateEmployee('${emp.id}', 'absentDays', +this.value)" placeholder="Days">
+                    </div>
+                    <div class="col">
+                        <label>Jan & Feb Increase</label>
+                        <input type="number" value="${emp.janFebIncrease || 0}" oninput="updateEmployee('${emp.id}', 'janFebIncrease', +this.value)" placeholder="Amount">
+                    </div>
                 </div>
 
                 <div class="row">
@@ -463,12 +476,15 @@
 
                 const basic = emp.days * (Number(emp.rate) || 0);
                 const otPay = emp.otHours * emp.otRate;
-                const bonus = Number(emp.attStatus);
+                const absentDays = emp.absentDays || 0;
+                const bonus = 30000 - (absentDays * 1000);
+                const janFebIncrease = emp.janFebIncrease || 0;
+                const attAllowance = emp.attStatus === undefined ? 15000 : Number(emp.attStatus);
                 const epfAmt = emp.epfApplicable ? basic * (emp.epfPercent / 100) : 0;
-                const net = basic + otPay + bonus - epfAmt - emp.advance;
+                const net = basic + otPay + attAllowance + bonus + janFebIncrease - epfAmt - emp.advance;
 
                 const resultObj = {
-                    basic, otPay, bonus, epfAmt, net
+                    basic, otPay, attAllowance, bonus, janFebIncrease, epfAmt, net
                 };
 
                 emp.result = resultObj;
@@ -490,7 +506,9 @@
             resDiv.innerHTML = `
             <div class="result-row"><span>Basic</span><span>${res.basic.toFixed(2)}</span></div>
             <div class="result-row"><span>OT</span><span>${res.otPay.toFixed(2)}</span></div>
+            <div class="result-row"><span>Attendance Status</span><span>${res.attAllowance.toFixed(2)}</span></div>
             <div class="result-row"><span>Bonus</span><span>${res.bonus.toFixed(2)}</span></div>
+            <div class="result-row"><span>Jan & Feb Increase</span><span>${res.janFebIncrease.toFixed(2)}</span></div>
             <div class="result-row"><span>EPF (-)</span><span>${res.epfAmt.toFixed(2)}</span></div>
             <div class="result-row"><span>Advance (-)</span><span>${employees.find(e => e.id === id).advance.toFixed(2)}</span></div>
             <div class="result-total">Net: Rs. ${res.net.toFixed(2)}</div>
@@ -527,7 +545,9 @@
                     <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td style="text-align: right;"><strong>${emp.name || "Unknown"}</strong></td></tr>
                     <tr><td style="padding: 8px 0;">Basic (${emp.days} days @ ${emp.rate})</td><td style="text-align: right;">${res.basic.toFixed(2)}</td></tr>
                     <tr><td style="padding: 8px 0;">OT (${emp.otHours} hrs @ ${emp.otRate})</td><td style="text-align: right;">${res.otPay.toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">Bonus</td><td style="text-align: right;">${res.bonus.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">Attendance Status</td><td style="text-align: right;">${res.attAllowance.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">Bonus (30000 - (${emp.absentDays || 0} * 1000))<br><span style="font-size: 13px; color: #555;">(30000 - (නොපැමිණි දින ගණන * 1000))</span></td><td style="text-align: right;">${res.bonus.toFixed(2)}</td></tr>
+                    <tr><td style="padding: 8px 0;">Increase Amount of January & February<br><span style="font-size: 13px; color: #555;">(ජනවාරි සහ පෙබරවාරි වැටුප් වැඩිවීම)</span></td><td style="text-align: right;">${res.janFebIncrease.toFixed(2)}</td></tr>
                     <tr><td style="padding: 8px 0;">EPF Deduction</td><td style="text-align: right;">-${res.epfAmt.toFixed(2)}</td></tr>
                     <tr><td style="padding: 8px 0;">Advance</td><td style="text-align: right;">-${emp.advance.toFixed(2)}</td></tr>
                 </table>
