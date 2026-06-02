@@ -316,8 +316,6 @@
                 name: '',
                 days: 0,
                 attStatus: '15000',
-                absentDays: 0,
-                janFebIncrease: 0,
                 rate: '',
                 otHours: 0,
                 otRate: 0,
@@ -349,6 +347,22 @@
             const emp = employees.find(e => e.id === id);
             if (emp) {
                 emp[field] = value;
+                
+                if (field === 'rate') {
+                    const otRateMap = {
+                        1300: 243,
+                        1400: 262,
+                        1500: 280,
+                        1600: 300,
+                        1800: 337,
+                        2000: 375
+                    };
+                    if (otRateMap[value] !== undefined) {
+                        emp.otRate = otRateMap[value];
+                        renderEmployees();
+                    }
+                }
+
                 // Clear previous result on edit to indicate need for recalculation
                 // emp.result = null; 
                 saveData();
@@ -409,23 +423,15 @@
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label>Attendance Status</label>
                     <select onchange="updateEmployee('${emp.id}', 'attStatus', this.value)">
-                        <option value="15000" ${emp.attStatus === '15000' || emp.attStatus === undefined ? 'selected' : ''}>Super Full Print (15000)</option>
-                        <option value="5000" ${emp.attStatus === '5000' ? 'selected' : ''}>Full Down (5000)</option>
-                        <option value="4000" ${emp.attStatus === '4000' ? 'selected' : ''}>Half Down (4000)</option>
-                        <option value="0" ${emp.attStatus === '0' ? 'selected' : ''}>Full Absent (0)</option>
+                        <option value="15000" ${emp.attStatus === '15000' || emp.attStatus === undefined ? 'selected' : ''}>15000</option>
+                        <option value="5000" ${emp.attStatus === '5000' ? 'selected' : ''}>5000</option>
+                        <option value="4000" ${emp.attStatus === '4000' ? 'selected' : ''}>4000</option>
+                        <option value="2000" ${emp.attStatus === '2000' ? 'selected' : ''}>2000</option>
+                        <option value="0" ${emp.attStatus === '0' ? 'selected' : ''}>0</option>
                     </select>
                 </div>
 
-                <div class="row" style="margin-bottom: 15px;">
-                    <div class="col">
-                        <label>Absent Days (For Bonus)</label>
-                        <input type="number" value="${emp.absentDays || 0}" oninput="updateEmployee('${emp.id}', 'absentDays', +this.value)" placeholder="Days">
-                    </div>
-                    <div class="col">
-                        <label>Jan & Feb Increase</label>
-                        <input type="number" value="${emp.janFebIncrease || 0}" oninput="updateEmployee('${emp.id}', 'janFebIncrease', +this.value)" placeholder="Amount">
-                    </div>
-                </div>
+
 
                 <div class="row">
                     <div class="col">
@@ -476,15 +482,12 @@
 
                 const basic = emp.days * (Number(emp.rate) || 0);
                 const otPay = emp.otHours * emp.otRate;
-                const absentDays = emp.absentDays || 0;
-                const bonus = 30000 - (absentDays * 1000);
-                const janFebIncrease = emp.janFebIncrease || 0;
                 const attAllowance = emp.attStatus === undefined ? 15000 : Number(emp.attStatus);
                 const epfAmt = emp.epfApplicable ? basic * (emp.epfPercent / 100) : 0;
-                const net = basic + otPay + attAllowance + bonus + janFebIncrease - epfAmt - emp.advance;
+                const net = basic + otPay + attAllowance - epfAmt - emp.advance;
 
                 const resultObj = {
-                    basic, otPay, attAllowance, bonus, janFebIncrease, epfAmt, net
+                    basic, otPay, attAllowance, epfAmt, net
                 };
 
                 emp.result = resultObj;
@@ -507,8 +510,7 @@
             <div class="result-row"><span>Basic</span><span>${(res.basic || 0).toFixed(2)}</span></div>
             <div class="result-row"><span>OT</span><span>${(res.otPay || 0).toFixed(2)}</span></div>
             <div class="result-row"><span>Attendance Status</span><span>${(res.attAllowance || 0).toFixed(2)}</span></div>
-            <div class="result-row"><span>Bonus</span><span>${(res.bonus || 0).toFixed(2)}</span></div>
-            <div class="result-row"><span>Jan & Feb Increase</span><span>${(res.janFebIncrease || 0).toFixed(2)}</span></div>
+
             <div class="result-row"><span>EPF (-)</span><span>${(res.epfAmt || 0).toFixed(2)}</span></div>
             <div class="result-row"><span>Advance (-)</span><span>${(employees.find(e => e.id === id).advance || 0).toFixed(2)}</span></div>
             <div class="result-total">Net: Rs. ${(res.net || 0).toFixed(2)}</div>
@@ -531,29 +533,88 @@
             prevMonthDate.setMonth(today.getMonth() - 1);
             const salaryMonthStr = prevMonthDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-            // Helper to generate HTML for a single slip
+            // Helper to generate HTML for a single slip in a compact two-column layout
             const createSlipHTML = (emp, res) => {
                 return `
-            <div style="font-family: 'Roboto', sans-serif; padding: 25px; background: #fff; border: 1px solid #000; width: 600px; margin-bottom: 25px;">
-                <div style="text-align: center; font-weight: bold; font-size: 22px; margin-bottom: 15px;">Pathumi Garment Salary Slip</div>
-                 <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;">
-                    <div><strong>Salary For:</strong> ${salaryMonthStr}</div>
-                    <div><strong>Issued:</strong> ${issuedMonthStr}</div>
-                 </div>
-                <hr style="border-top: 1px solid #ccc;">
-                <table style="width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 16px;">
-                    <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td style="text-align: right;"><strong>${emp.name || "Unknown"}</strong></td></tr>
-                    <tr><td style="padding: 8px 0;">Basic (${emp.days || 0} days @ ${emp.rate || 0})</td><td style="text-align: right;">${(res.basic || 0).toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">OT (${emp.otHours || 0} hrs @ ${emp.otRate || 0})</td><td style="text-align: right;">${(res.otPay || 0).toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">Attendance Status</td><td style="text-align: right;">${(res.attAllowance || 0).toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">Bonus (30000 - (${emp.absentDays || 0} * 1000))<br><span style="font-size: 13px; color: #555;">(30000 - (නොපැමිණි දින ගණන * 1000))</span></td><td style="text-align: right;">${(res.bonus || 0).toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">Increase Amount of January & February<br><span style="font-size: 13px; color: #555;">(ජනවාරි සහ පෙබරවාරි වැටුප් වැඩිවීම)</span></td><td style="text-align: right;">${(res.janFebIncrease || 0).toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">EPF Deduction</td><td style="text-align: right;">-${(res.epfAmt || 0).toFixed(2)}</td></tr>
-                    <tr><td style="padding: 8px 0;">Advance</td><td style="text-align: right;">-${(emp.advance || 0).toFixed(2)}</td></tr>
+            <div style="font-family: 'Roboto', sans-serif; padding: 18px 24px; background: #fff; border: 1.5px dashed #4facfe; width: 620px; box-sizing: border-box; border-radius: 8px;">
+                <div style="text-align: center; font-weight: 700; font-size: 20px; margin-bottom: 10px; color: #2c3e50; letter-spacing: 0.5px;">Pathumi Garment - Salary Slip</div>
+                
+                <div style="display: flex; justify-content: space-between; font-size: 13px; color: #7f8c8d; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                    <div><strong>Salary Month:</strong> ${salaryMonthStr}</div>
+                    <div><strong>Issued Date:</strong> ${issuedMonthStr}</div>
+                </div>
+                
+                <div style="font-size: 14px; margin-bottom: 12px; color: #2c3e50;">
+                    <strong>Employee Name:</strong> <span style="text-transform: uppercase; font-weight: 500;">${emp.name || "N/A"}</span>
+                </div>
+                
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #eee; font-weight: 700; color: #34495e;">
+                            <th style="text-align: left; padding: 6px 0; width: 50%;">Earnings</th>
+                            <th style="text-align: left; padding: 6px 0; width: 50%;">Deductions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 6px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between; padding-right: 20px;">
+                                    <span>Basic (${emp.days || 0} days @ ${emp.rate || 0}):</span>
+                                    <span style="font-family: monospace;">${(res.basic || 0).toFixed(2)}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 6px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>EPF (${emp.epfPercent || 0}%):</span>
+                                    <span style="font-family: monospace;">${(res.epfAmt || 0).toFixed(2)}</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between; padding-right: 20px;">
+                                    <span>OT (${emp.otHours || 0} hrs @ ${emp.otRate || 0}):</span>
+                                    <span style="font-family: monospace;">${(res.otPay || 0).toFixed(2)}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 6px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Advance:</span>
+                                    <span style="font-family: monospace;">${(emp.advance || 0).toFixed(2)}</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between; padding-right: 20px;">
+                                    <span>Attendance Allowance:</span>
+                                    <span style="font-family: monospace;">${(res.attAllowance || 0).toFixed(2)}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 6px 0; vertical-align: top;">
+                                <!-- Empty cell -->
+                            </td>
+                        </tr>
+                        <tr style="border-top: 1px solid #eee; font-weight: 700; color: #2c3e50;">
+                            <td style="padding: 8px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between; padding-right: 20px;">
+                                    <span>Gross Earnings:</span>
+                                    <span style="font-family: monospace;">${(res.basic + res.otPay + res.attAllowance).toFixed(2)}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 8px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Total Deductions:</span>
+                                    <span style="font-family: monospace;">${(res.epfAmt + emp.advance).toFixed(2)}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
-                <hr style="border-top: 1px solid #ccc; margin: 12px 0;">
-                <div style="text-align: right; font-size: 20px; font-weight: bold; color: #000;">Net Salary: Rs. ${(res.net || 0).toFixed(2)}</div>
-                <div style="text-align: center; font-size: 18px; font-weight: 500; color: #2c3e50; margin-top: 20px;">සුභ අලුත් අවුරුද්දක් වේවා!</div>
+                
+                <div style="border-top: 2px solid #2c3e50; padding-top: 8px; text-align: right;">
+                    <span style="font-size: 16px; font-weight: 700; color: #2ecc71;">Net Salary: Rs. ${(res.net || 0).toFixed(2)}</span>
+                </div>
             </div>
             `;
             };
@@ -576,24 +637,24 @@
             const slips = pdfContainer.children;
             let yOffset = 10;
             const pageHeight = 297; // A4 mm
-            const slipHeightMM = 100; // Approx height of one slip in mm
 
             for (let i = 0; i < slips.length; i++) {
-                // 2 slips per page basically
-                if (yOffset + slipHeightMM > pageHeight) {
+                const canvas = await html2canvas(slips[i], { scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Scale width to fit A4 margins (10mm left, 10mm right = 190mm wide printable area)
+                const pdfWidth = 190; 
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                // Check if adding this slip exceeds the page height limit (leaving 10mm margin at the bottom)
+                if (yOffset + pdfHeight > pageHeight - 10) {
                     pdf.addPage();
                     yOffset = 10;
                 }
 
-                const canvas = await html2canvas(slips[i], { scale: 2 });
-                const imgData = canvas.toDataURL('image/png');
-                // Scale width to fit A4 margins
-                    const pdfWidth = 190; // 10mm margins
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
                 pdf.addImage(imgData, 'PNG', 10, yOffset, pdfWidth, pdfHeight);
 
-                yOffset += pdfHeight + 10; // spacing
+                yOffset += pdfHeight + 6; // 6mm spacing between slips
             }
 
             // Cleanup
