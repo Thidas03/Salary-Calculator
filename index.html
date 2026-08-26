@@ -1448,6 +1448,20 @@
             }
 
             await Promise.all(savePromises);
+
+            // Clean up any database records for this month that are no longer in the calculator workspace
+            try {
+                const activeDbEmpIds = employees.map(e => Number(e.dbEmployeeId)).filter(id => !isNaN(id) && id > 0);
+                const savedRecords = await db.salaries.where('month').equals(selectedMonth).toArray();
+                for (const rec of savedRecords) {
+                    if (!activeDbEmpIds.includes(rec.employeeId)) {
+                        await db.salaries.delete(rec.id);
+                    }
+                }
+            } catch (err) {
+                console.error("Cleanup of deleted cards failed:", err);
+            }
+
             saveDataDraft();
 
             if (!allValid) {
