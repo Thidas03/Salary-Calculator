@@ -5,36 +5,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pathumi Garment Salary Calculator</title>
+    <link rel="icon" type="image/png" href="favicon.png">
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Modern Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Dexie JS & PDF Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         :root {
-            --primary-color: #4facfe;
-            --secondary-color: #00f2fe;
-            --accent-color: #ffffff;
-            --text-color: #333;
-            --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            --input-border: #e0e0e0;
-            --danger-color: #ff6b6b;
-            --success-color: #2ecc71;
+            --primary: #6366f1; /* Indigo */
+            --primary-light: rgba(99, 102, 241, 0.1);
+            --primary-hover: #4f46e5;
+            --secondary: #06b6d4; /* Teal */
+            --success: #10b981; /* Emerald */
+            --danger: #ef4444; /* Rose */
+            --warning: #f59e0b; /* Amber */
+            --text-main: #0f172a; /* Slate 900 */
+            --text-muted: #64748b; /* Slate 500 */
+            --bg-body: radial-gradient(circle at top right, #f8fafc, #e2e8f0);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --border-color: rgba(226, 232, 240, 0.8);
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --transition-all: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background: var(--bg-gradient);
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            background-attachment: fixed;
             margin: 0;
             padding: 40px 20px;
-            color: var(--text-color);
+            color: var(--text-main);
             min-height: 100vh;
+            line-height: 1.5;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: auto;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
         }
 
         header {
@@ -43,39 +63,109 @@
         }
 
         header h1 {
-            font-size: 2.5em;
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8em;
+            font-weight: 800;
             margin: 0;
-            color: #2c3e50;
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
         header .subtitle {
             font-size: 1.1em;
-            color: #7f8c8d;
+            color: var(--text-muted);
             margin-top: 10px;
+            font-weight: 500;
         }
 
-        .controls {
+        /* Modern Navigation Tabs */
+        .tab-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 35px;
+            border-bottom: 1.5px solid var(--border-color);
+            padding-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 22px;
+            border: none;
+            background: transparent;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 12px;
+            transition: var(--transition-all);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--primary) 0%, #4338ca 100%);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Controls card styling */
+        .controls-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
             flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .controls-left, .controls-right {
+            display: flex;
+            align-items: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .btn {
             padding: 12px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: 500;
-            font-size: 16px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 15px;
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: var(--transition-all);
         }
 
         .btn:hover {
@@ -83,104 +173,85 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
+        .btn:active {
+            transform: translateY(0);
+        }
+
         .btn-primary {
-            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, #4338ca 100%);
             color: white;
         }
 
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
         .btn-danger {
-            background: var(--danger-color);
+            background: var(--danger);
             color: white;
         }
 
         .btn-success {
-            background: var(--success-color);
+            background: var(--success);
             color: white;
         }
 
-        .employee-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
+        .btn-secondary {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
         }
 
-        .employee-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: var(--card-shadow);
-            position: relative;
-            transition: transform 0.2s;
-            border-top: 5px solid var(--primary-color);
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
         }
 
-        .employee-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .card-header h3 {
-            margin: 0;
-            font-size: 1.25em;
-            color: #34495e;
-        }
-
-        .remove-btn {
-            background: transparent;
-            border: none;
-            color: #95a5a6;
-            cursor: pointer;
-            font-size: 24px;
-            padding: 0;
-            line-height: 1;
-            transition: color 0.2s;
-        }
-
-        .remove-btn:hover {
-            color: var(--danger-color);
-        }
-
+        /* Inputs & Form Groups */
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 0.9em;
-            color: #555;
+            font-weight: 600;
+            font-size: 0.85em;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        input,
-        select {
+        input, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid var(--input-border);
-            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
             font-size: 14px;
             box-sizing: border-box;
-            /* Fix width issues */
-            transition: border-color 0.2s;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            transition: var(--transition-all);
+            font-family: 'Inter', sans-serif;
         }
 
-        input:focus,
-        select:focus {
+        input:focus, select:focus {
             outline: none;
-            border-color: var(--primary-color);
+            border-color: var(--primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        input:disabled, select:disabled {
+            background-color: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
         }
 
         .row {
             display: flex;
             gap: 15px;
+            margin-bottom: 10px;
         }
 
         .col {
@@ -190,64 +261,403 @@
         .checkbox-wrapper {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-top: 5px;
+            gap: 8px;
+            margin-top: 10px;
+            user-select: none;
         }
 
-        .checkbox-wrapper input {
-            width: auto;
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        /* Employee Cards List */
+        .employee-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+        }
+
+        .employee-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            transition: var(--transition-all);
+            border: 1px solid var(--border-color);
+            border-top: 5px solid var(--primary);
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 12px;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15em;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .remove-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 0;
+            line-height: 1;
+            transition: var(--transition-all);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+        }
+
+        .remove-btn:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
         }
 
         .result-section {
             margin-top: 20px;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px dashed #ced4da;
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 12px;
+            border: 1.5px dashed #cbd5e1;
         }
 
         .result-row {
             display: flex;
             justify-content: space-between;
             font-size: 0.9em;
-            margin-bottom: 5px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-muted);
+            font-weight: 500;
         }
 
-        .result-row:last-child {
+        .result-row:last-of-type {
             border-bottom: none;
         }
 
         .result-total {
-            margin-top: 10px;
-            font-size: 1.2em;
+            margin-top: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25em;
             font-weight: 700;
-            color: var(--success-color);
+            color: var(--success);
             text-align: right;
         }
 
-        /* PDF Generation overlay */
+        /* Database Directory Styles */
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            color: var(--text-muted);
+        }
+
+        .search-wrapper input {
+            padding-left: 40px;
+            background-color: #ffffff;
+        }
+
+        .table-container {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            padding: 16px 20px;
+            border-bottom: 1.5px solid var(--border-color);
+        }
+
+        .data-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover td {
+            background: #f8fafc;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-secondary {
+            background: #f1f5f9;
+            color: var(--text-muted);
+        }
+
+        .action-btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-all);
+        }
+
+        .action-btn-primary {
+            color: var(--primary);
+        }
+
+        .action-btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .action-btn-danger {
+            color: var(--danger);
+        }
+
+        .action-btn-danger:hover {
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        /* History Analytics grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon .material-icons {
+            font-size: 28px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            color: var(--text-main);
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        /* Modals and Forms */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 90%;
+            max-width: 520px;
+            padding: 30px;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid var(--border-color);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 18px;
+        }
+
+        /* Toasts System */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 14px 24px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            z-index: 2000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--danger);
+        }
+
+        /* PDF Generation Container hidden offset */
         #pdf-container {
             position: fixed;
             left: -9999px;
             top: 0;
-            width: 210mm;
-            /* A4 width */
+            width: 210mm; /* A4 width */
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .employee-list {
                 grid-template-columns: 1fr;
             }
 
-            .controls {
+            .controls-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls-left, .controls-right {
                 flex-direction: column;
                 align-items: stretch;
             }
 
             .btn {
                 justify-content: center;
+            }
+            
+            body {
+                padding: 15px 10px;
+            }
+            
+            .container {
+                padding: 20px;
             }
         }
     </style>
@@ -258,61 +668,479 @@
     <div class="container">
         <header>
             <h1>Pathumi Garment</h1>
-            <div class="subtitle">Advanced Salary Calculator</div>
+            <div class="subtitle">Advanced Salary Dashboard</div>
         </header>
 
-        <div class="controls">
-            <button class="btn btn-primary" onclick="addEmployee()">
-                <span class="material-icons">add</span> Add Employee
-            </button>
-            <div>
-                <button class="btn btn-success" onclick="calculateAll()">
-                    <span class="material-icons">calculate</span> Calculate All
+        <!-- Tabs Navigation -->
+        <div class="tab-container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="tab-btn active" onclick="switchTab('calculator')">
+                    <span class="material-icons">calculate</span> Salary Calculator
                 </button>
-                <button class="btn btn-danger" onclick="downloadAllPDF()">
-                    <span class="material-icons">picture_as_pdf</span> Download All Slips
+                <button class="tab-btn" onclick="switchTab('employees')">
+                    <span class="material-icons">people</span> Employees Directory
                 </button>
-                <button class="btn btn-primary" style="background: #6c757d;" onclick="clearAllData()">
-                    <span class="material-icons">delete_sweep</span> Reset
+                <button class="tab-btn" onclick="switchTab('history')">
+                    <span class="material-icons">history</span> Salary History
+                </button>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button class="btn btn-secondary" onclick="exportBackup()" style="padding: 8px 12px; font-size: 13px; border-radius: 8px; height: 38px;">
+                    <span class="material-icons" style="font-size: 18px;">download</span> Backup
+                </button>
+                <button class="btn btn-secondary" onclick="triggerImport()" style="padding: 8px 12px; font-size: 13px; border-radius: 8px; height: 38px;">
+                    <span class="material-icons" style="font-size: 18px;">upload</span> Restore
                 </button>
             </div>
         </div>
 
-        <div id="employeeList" class="employee-list">
-            <!-- Employee Cards will be injected here -->
+        <!-- 1. SALARY CALCULATOR TAB -->
+        <div id="tab-calculator" class="tab-content active">
+            <div class="controls-card">
+                <div class="controls-left">
+                    <div style="min-width: 160px;">
+                        <label>Salary Month</label>
+                        <input type="month" id="salaryMonth" onchange="loadMonthData()">
+                    </div>
+                    <button class="btn btn-secondary" onclick="addEmployeeCard()" style="margin-top: 22px;">
+                        <span class="material-icons">add</span> Add Card
+                    </button>
+                </div>
+                <div class="controls-right">
+                    <button class="btn btn-success" onclick="calculateAll()" style="margin-top: 22px;">
+                        <span class="material-icons">save</span> Calculate & Save
+                    </button>
+                    <button class="btn btn-primary" onclick="downloadAllPDF()" style="margin-top: 22px;">
+                        <span class="material-icons">picture_as_pdf</span> Download Slips
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearCalculator()" style="margin-top: 22px; background: #fee2e2; color: #ef4444; border-color: #fecaca;">
+                        <span class="material-icons">delete_sweep</span> Clear Draft
+                    </button>
+                </div>
+            </div>
+
+            <div id="employeeList" class="employee-list">
+                <!-- Employee Cards injected dynamically -->
+            </div>
+        </div>
+
+        <!-- 2. EMPLOYEES DIRECTORY TAB -->
+        <div id="tab-employees" class="tab-content">
+            <div class="controls-card">
+                <div class="search-wrapper">
+                    <span class="material-icons search-icon">search</span>
+                    <input type="text" id="employeeSearch" placeholder="Search employees..." oninput="filterEmployees()">
+                </div>
+                <button class="btn btn-primary" onclick="openEmployeeModal('add')">
+                    <span class="material-icons">person_add</span> Register Employee
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Default Daily Rate</th>
+                            <th>Default Attendance Status</th>
+                            <th>EPF Status</th>
+                            <th>Date Added</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeesTableBody">
+                        <!-- Injected dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 3. SALARY HISTORY TAB -->
+        <div id="tab-history" class="tab-content">
+            <!-- Analytics Summary Widgets -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: var(--primary);">
+                        <span class="material-icons">receipt_long</span>
+                    </div>
+                    <div>
+                        <div class="stat-label">Total Slips</div>
+                        <div class="stat-value" id="statsTotalSlips">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                        <span class="material-icons">payments</span>
+                    </div>
+                    <div>
+                        <div class="stat-label">Total Net Paid</div>
+                        <div class="stat-value" id="statsTotalNet">Rs. 0.00</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
+                        <span class="material-icons">account_balance</span>
+                    </div>
+                    <div>
+                        <div class="stat-label">Total EPF Deducted</div>
+                        <div class="stat-value" id="statsTotalEpf">Rs. 0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-card">
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; width: 100%;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label>Filter Employee</label>
+                        <select id="historyFilterEmployee" onchange="filterHistory()">
+                            <option value="ALL">All Employees</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <label>Filter Month</label>
+                        <div style="display:flex; gap: 10px;">
+                            <input type="month" id="historyFilterMonth" onchange="filterHistory()" style="flex:1;">
+                            <button class="btn" style="background: #f1f5f9; color: #475569; padding: 10px;" onclick="clearHistoryMonthFilter()">
+                                <span class="material-icons" style="font-size:20px;">clear</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Employee Name</th>
+                            <th>Days (Rate)</th>
+                            <th>Basic</th>
+                            <th>OT (Hours)</th>
+                            <th>Allowance</th>
+                            <th>Deductions</th>
+                            <th>Net Salary</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- Injected dynamically -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- Hidden container for PDF generation -->
+    <!-- Modal for Employee Adding/Editing -->
+    <div id="employeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Register Employee</h2>
+                <button class="close-btn" onclick="closeEmployeeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modalEmpId">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="modalEmpName" placeholder="Enter employee full name">
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Default Daily Rate</label>
+                        <select id="modalEmpRate">
+                            <option value="1100">1100</option>
+                            <option value="1200">1200</option>
+                            <option value="1300">1300</option>
+                            <option value="1400">1400</option>
+                            <option value="1500" selected>1500</option>
+                            <option value="1600">1600</option>
+                            <option value="1700">1700</option>
+                            <option value="1800">1800</option>
+                            <option value="2000">2000</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label>Default Attendance Status</label>
+                        <select id="modalEmpAtt">
+                            <option value="15000" selected>15000</option>
+                            <option value="5000">5000</option>
+                            <option value="4000">4000</option>
+                            <option value="2000">2000</option>
+                            <option value="0">0</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="align-items: center; margin-top: 15px;">
+                    <div class="col checkbox-wrapper">
+                        <input type="checkbox" id="modalEmpEpf" checked onchange="toggleModalEpf()">
+                        <label style="margin:0">EPF Applicable</label>
+                    </div>
+                    <div class="col">
+                        <label>EPF Percentage</label>
+                        <input type="number" id="modalEmpEpfPercent" value="8" placeholder="%">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEmployeeForm()">Save Employee</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden container for PDF rendering -->
     <div id="pdf-container"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
     <script>
-        // --- State Management ---
-        let employees = [];
+        // --- Database Definition (Dexie) ---
+        const db = new Dexie("PathumiGarmentDB");
+        db.version(1).stores({
+            employees: '++id, &name, defaultRate, defaultAttStatus, epfApplicable, epfPercent, createdAt',
+            salaries: '++id, employeeId, month, [employeeId+month], days, rate, attStatus, otHours, otRate, advance, epfApplicable, epfPercent, basic, otPay, attAllowance, epfAmt, net, calculatedAt'
+        });
 
-        // Load data from LocalStorage on startup
-        window.onload = function () {
-            const storedData = localStorage.getItem('pg_salary_employees');
-            if (storedData) {
-                employees = JSON.parse(storedData);
-            } else {
-                // Default initial state with one empty employee
-                addEmployee(false);
+        // --- State Management ---
+        let employees = []; // Temporary workspace list for current calculator
+        let activeTab = 'calculator';
+        let currentFormCardId = null; // Stores card reference when quick adding employee
+
+        // --- Page Initialization ---
+        window.onload = async function () {
+            // Set default date picker to current month
+            const today = new Date();
+            const currentMonthStr = today.toISOString().slice(0, 7);
+            document.getElementById('salaryMonth').value = currentMonthStr;
+
+            // Handle legacy LocalStorage migration
+            await migrateLocalStorage();
+
+            // Populate some demo seed employees if directory is completely empty on first load
+            const empCount = await db.employees.count();
+            if (empCount === 0) {
+                await seedDefaultEmployees();
             }
-            renderEmployees();
+
+            // Load initial workspace month calculations
+            await loadMonthData();
         };
 
-        function saveData() {
-            localStorage.setItem('pg_salary_employees', JSON.stringify(employees));
+        // --- Backup & Restore ---
+        async function exportBackup() {
+            try {
+                const employees = await db.employees.toArray();
+                const salaries = await db.salaries.toArray();
+                const backupData = JSON.stringify({ employees, salaries }, null, 2);
+                
+                const blob = new Blob([backupData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Pathumi_Garment_DB_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast("Database backup downloaded!", "success");
+            } catch (err) {
+                console.error(err);
+                alert("Failed to export backup: " + err.message);
+            }
         }
 
-        function addEmployee(save = true) {
-            const id = Date.now().toString(); // Simple unique ID
+        function triggerImport() {
+            if (!confirm("Warning: Restoring data from a backup file will overwrite your current directory and history. Do you want to proceed?")) {
+                return;
+            }
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async (evt) => {
+                    try {
+                        const data = JSON.parse(evt.target.result);
+                        if (data.employees && data.salaries) {
+                            await db.employees.clear();
+                            await db.salaries.clear();
+                            
+                            await db.employees.bulkAdd(data.employees);
+                            await db.salaries.bulkAdd(data.salaries);
+                            
+                            showToast("Database restored successfully!", "success");
+                            
+                            // Reload data based on active tab
+                            if (activeTab === 'calculator') {
+                                loadMonthData();
+                            } else if (activeTab === 'employees') {
+                                loadEmployeesDirectory();
+                            } else if (activeTab === 'history') {
+                                loadSalaryHistory();
+                            }
+                        } else {
+                            alert("Invalid backup file format. Make sure it is a valid Pathumi Garment backup file.");
+                        }
+                    } catch (err) {
+                        alert("Failed to restore backup: " + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Seed default employees
+        async function seedDefaultEmployees() {
+            const seedData = [
+                { name: "Sunil Perera", defaultRate: 1500, defaultAttStatus: "15000", epfApplicable: true, epfPercent: 8, createdAt: Date.now() },
+                { name: "Nimal Silva", defaultRate: 1400, defaultAttStatus: "15000", epfApplicable: true, epfPercent: 8, createdAt: Date.now() },
+                { name: "Kamal Gunawardena", defaultRate: 1300, defaultAttStatus: "5000", epfApplicable: true, epfPercent: 8, createdAt: Date.now() }
+            ];
+            for (const emp of seedData) {
+                await db.employees.add(emp);
+            }
+        }
+
+        // Migrate legacy LocalStorage to IndexedDB
+        async function migrateLocalStorage() {
+            try {
+                const storedData = localStorage.getItem('pg_salary_employees');
+                if (storedData) {
+                    const oldEmployees = JSON.parse(storedData);
+                    let migratedCount = 0;
+                    for (const emp of oldEmployees) {
+                        if (!emp.name) continue;
+                        const count = await db.employees.where('name').equals(emp.name).count();
+                        if (count === 0) {
+                            await db.employees.add({
+                                name: emp.name,
+                                defaultRate: Number(emp.rate) || 1500,
+                                defaultAttStatus: emp.attStatus || '15000',
+                                epfApplicable: emp.epfApplicable !== undefined ? emp.epfApplicable : true,
+                                epfPercent: Number(emp.epfPercent) || 8,
+                                createdAt: Date.now()
+                            });
+                            migratedCount++;
+                        }
+                    }
+                    localStorage.removeItem('pg_salary_employees');
+                    if (migratedCount > 0) {
+                        setTimeout(() => showToast(`Migrated ${migratedCount} employees to local database!`, 'success'), 500);
+                    }
+                }
+            } catch (err) {
+                console.error("Migration failed:", err);
+            }
+        }
+
+        // --- Toasts notification ---
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 50);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Tab Switching System ---
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Set clicked tab button as active
+            const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.onclick.toString().includes(tabId));
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const content = document.getElementById(`tab-${tabId}`);
+            if (content) content.classList.add('active');
+
+            // Refresh specific tab datasets
+            if (tabId === 'calculator') {
+                loadMonthData();
+            } else if (tabId === 'employees') {
+                loadEmployeesDirectory();
+            } else if (tabId === 'history') {
+                loadSalaryHistory();
+            }
+        }
+
+        // --- SALARY CALCULATOR LOGIC ---
+        async function loadMonthData() {
+            const selectedMonth = document.getElementById('salaryMonth').value;
+            if (!selectedMonth) return;
+
+            // Get saved records for the month
+            const records = await db.salaries.where('month').equals(selectedMonth).toArray();
+
+            if (records.length > 0) {
+                // Pre-populate with saved data
+                employees = await Promise.all(records.map(async rec => {
+                    const empInfo = await db.employees.get(rec.employeeId);
+                    return {
+                        id: rec.id.toString(),
+                        dbEmployeeId: rec.employeeId,
+                        name: empInfo ? empInfo.name : 'Unknown Employee',
+                        days: rec.days,
+                        attStatus: rec.attStatus,
+                        rate: rec.rate,
+                        otHours: rec.otHours,
+                        otRate: rec.otRate,
+                        advance: rec.advance,
+                        epfApplicable: rec.epfApplicable,
+                        epfPercent: rec.epfPercent,
+                        result: {
+                            basic: rec.basic,
+                            otPay: rec.otPay,
+                            attAllowance: rec.attAllowance,
+                            epfAmt: rec.epfAmt,
+                            net: rec.net
+                        }
+                    };
+                }));
+            } else {
+                // Pre-populate calculator with all registered employees with default fields
+                const dbEmployees = await db.employees.toArray();
+                if (dbEmployees.length > 0) {
+                    employees = dbEmployees.map(emp => ({
+                        id: (Date.now() + Math.random()).toString(),
+                        dbEmployeeId: emp.id,
+                        name: emp.name,
+                        days: 0,
+                        attStatus: emp.defaultAttStatus || '15000',
+                        rate: emp.defaultRate || '',
+                        otHours: 0,
+                        otRate: getOtRateForBaseRate(emp.defaultRate),
+                        advance: 0,
+                        epfApplicable: emp.epfApplicable !== undefined ? emp.epfApplicable : true,
+                        epfPercent: emp.epfPercent || 8,
+                        result: null
+                    }));
+                } else {
+                    employees = [];
+                    addEmployeeCard(false);
+                }
+            }
+            renderEmployees();
+        }
+
+        function saveDataDraft() {
+            localStorage.setItem('pg_calculator_draft', JSON.stringify(employees));
+        }
+
+        async function addEmployeeCard(save = true) {
+            const id = (Date.now() + Math.random()).toString();
             employees.push({
                 id: id,
+                dbEmployeeId: null,
                 name: '',
                 days: 0,
                 attStatus: '15000',
@@ -322,24 +1150,67 @@
                 advance: 0,
                 epfApplicable: true,
                 epfPercent: 8,
-                result: null // Store calculation result
+                result: null
             });
-            if (save) saveData();
+            if (save) saveDataDraft();
             renderEmployees();
         }
 
         function removeEmployee(id) {
-            if (confirm("Are you sure you want to remove this employee?")) {
+            if (confirm("Are you sure you want to remove this card?")) {
                 employees = employees.filter(emp => emp.id !== id);
-                saveData();
+                saveDataDraft();
                 renderEmployees();
             }
         }
 
-        function clearAllData() {
-            if (confirm("This will delete ALL employee data. Are you sure?")) {
+        function clearCalculator() {
+            if (confirm("This will clear the active calculator workspace. Are you sure?")) {
                 employees = [];
-                addEmployee(); // Add one fresh
+                addEmployeeCard(true);
+            }
+        }
+
+        async function onCalculatorEmployeeChange(id, dbEmpId) {
+            if (dbEmpId === "ADD_NEW") {
+                openEmployeeModal('add', id);
+                document.getElementById(`select-emp-${id}`).value = "";
+                return;
+            }
+
+            const emp = employees.find(e => e.id === id);
+            if (emp) {
+                if (dbEmpId === "") {
+                    emp.dbEmployeeId = null;
+                    emp.name = "";
+                    return;
+                }
+                const dbEmp = await db.employees.get(Number(dbEmpId));
+                if (dbEmp) {
+                    emp.dbEmployeeId = dbEmp.id;
+                    emp.name = dbEmp.name;
+                    emp.rate = dbEmp.defaultRate;
+                    emp.attStatus = dbEmp.defaultAttStatus;
+                    emp.epfApplicable = dbEmp.epfApplicable;
+                    emp.epfPercent = dbEmp.epfPercent;
+                    emp.otRate = getOtRateForBaseRate(dbEmp.defaultRate);
+
+                    // Update DOM element inputs directly to avoid layout re-render & focus loss
+                    const card = document.getElementById(`card-${id}`);
+                    if (card) {
+                        card.querySelector('.rate-select').value = dbEmp.defaultRate;
+                        card.querySelector('.att-select').value = dbEmp.defaultAttStatus;
+                        card.querySelector('.ot-rate-input').value = emp.otRate;
+                        
+                        const epfCheckbox = card.querySelector('.epf-checkbox');
+                        epfCheckbox.checked = dbEmp.epfApplicable;
+                        
+                        const epfPercentInput = card.querySelector('.epf-percent-input');
+                        epfPercentInput.value = dbEmp.epfPercent;
+                        epfPercentInput.disabled = !dbEmp.epfApplicable;
+                    }
+                    saveDataDraft();
+                }
             }
         }
 
@@ -347,65 +1218,109 @@
             const emp = employees.find(e => e.id === id);
             if (emp) {
                 emp[field] = value;
-                
-                if (field === 'rate') {
-                    const otRateMap = {
-                        1300: 243,
-                        1400: 262,
-                        1500: 280,
-                        1600: 300,
-                        1800: 337,
-                        2000: 375
-                    };
-                    if (otRateMap[value] !== undefined) {
-                        emp.otRate = otRateMap[value];
-                        renderEmployees();
-                    }
-                }
-
-                // Clear previous result on edit to indicate need for recalculation
-                // emp.result = null; 
-                saveData();
-                // We don't re-render entire list on every keystroke to maintain focus
-                // But we do need to update the specific calculation if it exists
-                if (field === 'epfApplicable') {
-                    // Force re-render for checkbox logic usually
-                    renderEmployees();
-                }
+                saveDataDraft();
             }
         }
 
-        // --- Rendering ---
-        function renderEmployees() {
+        function updateEmployeeRate(id, rate) {
+            const emp = employees.find(e => e.id === id);
+            if (emp) {
+                emp.rate = rate;
+                const otRate = getOtRateForBaseRate(rate);
+                emp.otRate = otRate;
+                
+                const card = document.getElementById(`card-${id}`);
+                if (card) {
+                    card.querySelector('.ot-rate-input').value = otRate;
+                }
+                saveDataDraft();
+            }
+        }
+
+        function updateEmployeeEpfApplicable(id, checked) {
+            const emp = employees.find(e => e.id === id);
+            if (emp) {
+                emp.epfApplicable = checked;
+                
+                const card = document.getElementById(`card-${id}`);
+                if (card) {
+                    card.querySelector('.epf-percent-input').disabled = !checked;
+                }
+                saveDataDraft();
+            }
+        }
+
+        function getOtRateForBaseRate(rate) {
+            const otRateMap = {
+                1100: 206,
+                1200: 225,
+                1300: 243,
+                1400: 262,
+                1500: 280,
+                1600: 300,
+                1700: 319,
+                1800: 337,
+                2000: 375
+            };
+            return otRateMap[rate] || Math.round((rate / 8) * 1.5) || 0;
+        }
+
+        async function updateAllEmployeeDropdowns() {
+            const dbEmployees = await db.employees.toArray();
+            employees.forEach(emp => {
+                const select = document.getElementById(`select-emp-${emp.id}`);
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = `
+                        <option value="">-- Select Employee --</option>
+                        <option value="ADD_NEW">+ Register New...</option>
+                        ${dbEmployees.map(e => `<option value="${e.id}">${e.name}</option>`).join('')}
+                    `;
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        // --- Render Employee Calculator Cards ---
+        async function renderEmployees() {
             const container = document.getElementById('employeeList');
             container.innerHTML = '';
+
+            const dbEmployees = await db.employees.toArray();
 
             employees.forEach((emp, index) => {
                 const card = document.createElement('div');
                 card.className = 'employee-card';
+                card.id = `card-${emp.id}`;
 
-                // Should EPF input be disabled?
                 const epfDisabled = !emp.epfApplicable;
+                const options = dbEmployees.map(e => 
+                    `<option value="${e.id}" ${emp.dbEmployeeId === e.id ? 'selected' : ''}>${e.name}</option>`
+                ).join('');
 
                 card.innerHTML = `
                 <div class="card-header">
-                    <h3>Employee ${index + 1}</h3>
+                    <h3>Employee Card ${index + 1}</h3>
                     <button class="remove-btn" onclick="removeEmployee('${emp.id}')">&times;</button>
                 </div>
 
                 <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" value="${emp.name}" oninput="updateEmployee('${emp.id}', 'name', this.value)" placeholder="Enter Name">
+                    <label>Select Employee</label>
+                    <select id="select-emp-${emp.id}" class="emp-select" onchange="onCalculatorEmployeeChange('${emp.id}', this.value)">
+                        <option value="">-- Select Employee --</option>
+                        <option value="ADD_NEW">+ Register New...</option>
+                        ${options}
+                    </select>
                 </div>
 
                 <div class="row">
                     <div class="col">
-                        <label>Days</label>
-                        <input type="number" value="${emp.days}" oninput="updateEmployee('${emp.id}', 'days', +this.value)">
+                        <label>Days Worked</label>
+                        <input type="number" class="days-input" value="${emp.days}" oninput="updateEmployee('${emp.id}', 'days', +this.value)">
                     </div>
                     <div class="col">
-                        <label>Rate</label>
-                        <select onchange="updateEmployee('${emp.id}', 'rate', +this.value)">
+                        <label>Daily Rate</label>
+                        <select class="rate-select" onchange="updateEmployeeRate('${emp.id}', +this.value)">
                             <option value="" ${emp.rate === '' ? 'selected' : ''}>Select</option>
                             <option value="1100" ${emp.rate === 1100 ? 'selected' : ''}>1100</option>
                             <option value="1200" ${emp.rate === 1200 ? 'selected' : ''}>1200</option>
@@ -420,10 +1335,10 @@
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label>Attendance Status</label>
-                    <select onchange="updateEmployee('${emp.id}', 'attStatus', this.value)">
-                        <option value="15000" ${emp.attStatus === '15000' || emp.attStatus === undefined ? 'selected' : ''}>15000</option>
+                <div class="form-group">
+                    <label>Attendance Status (Allowance)</label>
+                    <select class="att-select" onchange="updateEmployee('${emp.id}', 'attStatus', this.value)">
+                        <option value="15000" ${emp.attStatus === '15000' ? 'selected' : ''}>15000</option>
                         <option value="5000" ${emp.attStatus === '5000' ? 'selected' : ''}>5000</option>
                         <option value="4000" ${emp.attStatus === '4000' ? 'selected' : ''}>4000</option>
                         <option value="2000" ${emp.attStatus === '2000' ? 'selected' : ''}>2000</option>
@@ -431,73 +1346,114 @@
                     </select>
                 </div>
 
-
-
                 <div class="row">
                     <div class="col">
                         <label>OT Hours</label>
-                        <input type="number" value="${emp.otHours}" oninput="updateEmployee('${emp.id}', 'otHours', +this.value)">
+                        <input type="number" class="ot-hours-input" value="${emp.otHours}" oninput="updateEmployee('${emp.id}', 'otHours', +this.value)">
                     </div>
                     <div class="col">
                         <label>OT Rate</label>
-                        <input type="number" value="${emp.otRate}" oninput="updateEmployee('${emp.id}', 'otRate', +this.value)">
+                        <input type="number" class="ot-rate-input" value="${emp.otRate}" oninput="updateEmployee('${emp.id}', 'otRate', +this.value)">
                     </div>
                 </div>
 
                 <div class="form-group">
-                     <label>Advance</label>
-                     <input type="number" value="${emp.advance}" oninput="updateEmployee('${emp.id}', 'advance', +this.value)">
+                     <label>Advance Payment</label>
+                     <input type="number" class="advance-input" value="${emp.advance}" oninput="updateEmployee('${emp.id}', 'advance', +this.value)">
                 </div>
 
                 <div class="row" style="align-items: center;">
                     <div class="col">
                          <div class="checkbox-wrapper">
-                            <input type="checkbox" ${emp.epfApplicable ? 'checked' : ''} onchange="updateEmployee('${emp.id}', 'epfApplicable', this.checked)">
-                            <label style="margin:0">EPF</label>
+                            <input type="checkbox" class="epf-checkbox" ${emp.epfApplicable ? 'checked' : ''} onchange="updateEmployeeEpfApplicable('${emp.id}', this.checked)">
+                            <label style="margin:0">EPF Deduct</label>
                         </div>
                     </div>
                     <div class="col">
-                        <input type="number" value="${emp.epfPercent}" ${epfDisabled ? 'disabled' : ''} oninput="updateEmployee('${emp.id}', 'epfPercent', +this.value)" placeholder="%">
+                        <input type="number" class="epf-percent-input" value="${emp.epfPercent}" ${epfDisabled ? 'disabled' : ''} oninput="updateEmployee('${emp.id}', 'epfPercent', +this.value)" placeholder="%">
                     </div>
                 </div>
 
                 <div id="result-${emp.id}" class="result-section" style="display: none;">
-                    <!-- Result injected here -->
+                    <!-- Calculations Injection -->
                 </div>
-            `;
+                `;
                 container.appendChild(card);
 
-                // If there's a stored result, show it
                 if (emp.result) {
                     showResult(emp.id, emp.result);
                 }
             });
         }
 
-        // --- Calculations ---
-        function calculateAll() {
+        async function calculateAll() {
+            const selectedMonth = document.getElementById('salaryMonth').value;
+            if (!selectedMonth) {
+                alert("Please select a Salary Month first.");
+                return;
+            }
+
             let allValid = true;
-            employees.forEach(emp => {
-                if (!emp.rate) allValid = false; // Basic validation
+            const savePromises = [];
+
+            for (const emp of employees) {
+                if (!emp.dbEmployeeId) {
+                    allValid = false;
+                    continue;
+                }
+                if (!emp.rate) {
+                    allValid = false;
+                }
 
                 const basic = emp.days * (Number(emp.rate) || 0);
-                const otPay = emp.otHours * emp.otRate;
+                const otPay = emp.otHours * (Number(emp.otRate) || 0);
                 const attAllowance = emp.attStatus === undefined ? 15000 : Number(emp.attStatus);
                 const epfAmt = emp.epfApplicable ? basic * (emp.epfPercent / 100) : 0;
                 const net = basic + otPay + attAllowance - epfAmt - emp.advance;
 
-                const resultObj = {
-                    basic, otPay, attAllowance, epfAmt, net
-                };
-
+                const resultObj = { basic, otPay, attAllowance, epfAmt, net };
                 emp.result = resultObj;
                 showResult(emp.id, resultObj);
-            });
 
-            saveData(); // Save results too
+                const record = {
+                    employeeId: Number(emp.dbEmployeeId),
+                    month: selectedMonth,
+                    days: emp.days,
+                    rate: Number(emp.rate) || 0,
+                    attStatus: emp.attStatus,
+                    otHours: emp.otHours,
+                    otRate: Number(emp.otRate) || 0,
+                    advance: emp.advance,
+                    epfApplicable: emp.epfApplicable,
+                    epfPercent: emp.epfPercent,
+                    basic,
+                    otPay,
+                    attAllowance,
+                    epfAmt,
+                    net,
+                    calculatedAt: Date.now()
+                };
+
+                const existing = await db.salaries.where({ employeeId: Number(emp.dbEmployeeId), month: selectedMonth }).first();
+                if (existing) {
+                    savePromises.push(db.salaries.update(existing.id, record));
+                } else {
+                    savePromises.push(db.salaries.add(record));
+                }
+            }
+
+            if (employees.length === 0) {
+                alert("Please add at least one card first.");
+                return;
+            }
+
+            await Promise.all(savePromises);
+            saveDataDraft();
 
             if (!allValid) {
-                alert("Some employees are missing Daily Rates. Calculation performed with defaults.");
+                alert("Some card profiles were not assigned an employee or lack rates. Saved valid calculations.");
+            } else {
+                showToast("Calculated and saved successfully to database!", "success");
             }
         }
 
@@ -507,161 +1463,537 @@
 
             resDiv.style.display = 'block';
             resDiv.innerHTML = `
-            <div class="result-row"><span>Basic</span><span>${(res.basic || 0).toFixed(2)}</span></div>
-            <div class="result-row"><span>OT</span><span>${(res.otPay || 0).toFixed(2)}</span></div>
-            <div class="result-row"><span>Attendance Status</span><span>${(res.attAllowance || 0).toFixed(2)}</span></div>
-
-            <div class="result-row"><span>EPF (-)</span><span>${(res.epfAmt || 0).toFixed(2)}</span></div>
-            <div class="result-row"><span>Advance (-)</span><span>${(employees.find(e => e.id === id).advance || 0).toFixed(2)}</span></div>
-            <div class="result-total">Net: Rs. ${(res.net || 0).toFixed(2)}</div>
-        `;
+                <div class="result-row"><span>Basic Salary</span><span>${(res.basic || 0).toFixed(2)}</span></div>
+                <div class="result-row"><span>OT Payment</span><span>${(res.otPay || 0).toFixed(2)}</span></div>
+                <div class="result-row"><span>Attendance Allowance</span><span>${(res.attAllowance || 0).toFixed(2)}</span></div>
+                <div class="result-row"><span>EPF Deduction (-)</span><span>${(res.epfAmt || 0).toFixed(2)}</span></div>
+                <div class="result-row"><span>Advance (-)</span><span>${(employees.find(e => e.id === id).advance || 0).toFixed(2)}</span></div>
+                <div class="result-total">Net Pay: Rs. ${(res.net || 0).toFixed(2)}</div>
+            `;
         }
 
-        // --- PDF Generation ---
+        // --- EMPLOYEES DIRECTORY MANAGEMENT ---
+        async function loadEmployeesDirectory() {
+            const body = document.getElementById('employeesTableBody');
+            body.innerHTML = '';
+
+            const items = await db.employees.toArray();
+            if (items.length === 0) {
+                body.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No registered employees found. Register one above.</td></tr>`;
+                return;
+            }
+
+            items.forEach(emp => {
+                const tr = document.createElement('tr');
+                const dateStr = new Date(emp.createdAt).toLocaleDateString();
+
+                tr.innerHTML = `
+                    <td style="font-weight: 600; color: var(--text-main);">${emp.name}</td>
+                    <td>${emp.defaultRate}</td>
+                    <td>${emp.defaultAttStatus}</td>
+                    <td>
+                        <span class="badge ${emp.epfApplicable ? 'badge-success' : 'badge-secondary'}">
+                            ${emp.epfApplicable ? `EPF (${emp.epfPercent}%)` : 'No EPF'}
+                        </span>
+                    </td>
+                    <td>${dateStr}</td>
+                    <td style="text-align: right;">
+                        <div class="action-btn-group">
+                            <button class="action-btn action-btn-primary" title="View History" onclick="viewEmployeeHistory(${emp.id})">
+                                <span class="material-icons">history</span>
+                            </button>
+                            <button class="action-btn action-btn-primary" title="Edit Employee" onclick="openEmployeeModal('edit', null, ${emp.id})">
+                                <span class="material-icons">edit</span>
+                            </button>
+                            <button class="action-btn action-btn-danger" title="Remove Profile" onclick="deleteEmployee(${emp.id})">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        async function filterEmployees() {
+            const query = document.getElementById('employeeSearch').value.toLowerCase();
+            const body = document.getElementById('employeesTableBody');
+            body.innerHTML = '';
+
+            const items = await db.employees.toArray();
+            const filtered = items.filter(e => e.name.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                body.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No matching employee profiles found.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(emp => {
+                const tr = document.createElement('tr');
+                const dateStr = new Date(emp.createdAt).toLocaleDateString();
+
+                tr.innerHTML = `
+                    <td style="font-weight: 600; color: var(--text-main);">${emp.name}</td>
+                    <td>${emp.defaultRate}</td>
+                    <td>${emp.defaultAttStatus}</td>
+                    <td>
+                        <span class="badge ${emp.epfApplicable ? 'badge-success' : 'badge-secondary'}">
+                            ${emp.epfApplicable ? `EPF (${emp.epfPercent}%)` : 'No EPF'}
+                        </span>
+                    </td>
+                    <td>${dateStr}</td>
+                    <td style="text-align: right;">
+                        <div class="action-btn-group">
+                            <button class="action-btn action-btn-primary" title="View History" onclick="viewEmployeeHistory(${emp.id})">
+                                <span class="material-icons">history</span>
+                            </button>
+                            <button class="action-btn action-btn-primary" title="Edit Employee" onclick="openEmployeeModal('edit', null, ${emp.id})">
+                                <span class="material-icons">edit</span>
+                            </button>
+                            <button class="action-btn action-btn-danger" title="Remove Profile" onclick="deleteEmployee(${emp.id})">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        async function deleteEmployee(id) {
+            if (confirm("Are you sure you want to delete this employee profile? Past calculations will remain but will display as 'Unknown Employee'.")) {
+                await db.employees.delete(id);
+                showToast("Employee deleted from directory", "success");
+                loadEmployeesDirectory();
+            }
+        }
+
+        // --- Modals Controller ---
+        function openEmployeeModal(mode, cardId = null, empId = null) {
+            currentFormCardId = cardId;
+            const modal = document.getElementById('employeeModal');
+            modal.classList.add('show');
+
+            if (mode === 'add') {
+                document.getElementById('modalTitle').textContent = "Register Employee";
+                document.getElementById('modalEmpId').value = "";
+                document.getElementById('modalEmpName').value = "";
+                document.getElementById('modalEmpRate').value = "1500";
+                document.getElementById('modalEmpAtt').value = "15000";
+                document.getElementById('modalEmpEpf').checked = true;
+                document.getElementById('modalEmpEpfPercent').value = "8";
+                document.getElementById('modalEmpEpfPercent').disabled = false;
+            } else if (mode === 'edit') {
+                document.getElementById('modalTitle').textContent = "Edit Employee";
+                db.employees.get(empId).then(emp => {
+                    if (emp) {
+                        document.getElementById('modalEmpId').value = emp.id;
+                        document.getElementById('modalEmpName').value = emp.name;
+                        document.getElementById('modalEmpRate').value = emp.defaultRate;
+                        document.getElementById('modalEmpAtt').value = emp.defaultAttStatus;
+                        document.getElementById('modalEmpEpf').checked = emp.epfApplicable;
+                        document.getElementById('modalEmpEpfPercent').value = emp.epfPercent;
+                        document.getElementById('modalEmpEpfPercent').disabled = !emp.epfApplicable;
+                    }
+                });
+            }
+        }
+
+        function closeEmployeeModal() {
+            document.getElementById('employeeModal').classList.remove('show');
+            currentFormCardId = null;
+        }
+
+        function toggleModalEpf() {
+            const epfChecked = document.getElementById('modalEmpEpf').checked;
+            document.getElementById('modalEmpEpfPercent').disabled = !epfChecked;
+        }
+
+        async function saveEmployeeForm() {
+            const id = document.getElementById('modalEmpId').value;
+            const name = document.getElementById('modalEmpName').value.trim();
+            const rate = Number(document.getElementById('modalEmpRate').value);
+            const att = document.getElementById('modalEmpAtt').value;
+            const epf = document.getElementById('modalEmpEpf').checked;
+            const epfPercent = Number(document.getElementById('modalEmpEpfPercent').value) || 8;
+
+            if (!name) {
+                alert("Please enter a name");
+                return;
+            }
+
+            try {
+                let dbId;
+                if (id) {
+                    dbId = Number(id);
+                    await db.employees.update(dbId, {
+                        name, defaultRate: rate, defaultAttStatus: att, epfApplicable: epf, epfPercent
+                    });
+                    showToast("Employee details updated!", "success");
+                } else {
+                    const count = await db.employees.where('name').equals(name).count();
+                    if (count > 0) {
+                        alert("An employee profile with this name already exists");
+                        return;
+                    }
+                    dbId = await db.employees.add({
+                        name, defaultRate: rate, defaultAttStatus: att, epfApplicable: epf, epfPercent, createdAt: Date.now()
+                    });
+                    showToast("New employee registered!", "success");
+                }
+
+                // If modal was triggered inline by calculator card
+                if (currentFormCardId) {
+                    const emp = employees.find(e => e.id === currentFormCardId);
+                    if (emp) {
+                        emp.dbEmployeeId = dbId;
+                        emp.name = name;
+                        emp.rate = rate;
+                        emp.attStatus = att;
+                        emp.epfApplicable = epf;
+                        emp.epfPercent = epfPercent;
+                        emp.otRate = getOtRateForBaseRate(rate);
+                    }
+                }
+
+                closeEmployeeModal();
+
+                if (activeTab === 'calculator') {
+                    await updateAllEmployeeDropdowns();
+                    if (currentFormCardId) {
+                        // Refresh calculator cards UI directly to sync selections without loss of input
+                        renderEmployees();
+                    }
+                } else if (activeTab === 'employees') {
+                    loadEmployeesDirectory();
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error saving details: " + err.message);
+            }
+        }
+
+        // --- SALARY HISTORY LOGIC ---
+        async function loadSalaryHistory() {
+            // Populate filters
+            const filterEmp = document.getElementById('historyFilterEmployee');
+            const currentValue = filterEmp.value;
+            filterEmp.innerHTML = `<option value="ALL">All Employees</option>`;
+            
+            const dbEmployees = await db.employees.toArray();
+            dbEmployees.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.id;
+                opt.textContent = e.name;
+                filterEmp.appendChild(opt);
+            });
+            filterEmp.value = currentValue;
+
+            await filterHistory();
+        }
+
+        function clearHistoryMonthFilter() {
+            document.getElementById('historyFilterMonth').value = "";
+            filterHistory();
+        }
+
+        function viewEmployeeHistory(empId) {
+            document.getElementById('historyFilterEmployee').value = empId;
+            document.getElementById('historyFilterMonth').value = "";
+            switchTab('history');
+        }
+
+        async function filterHistory() {
+            const selectedEmp = document.getElementById('historyFilterEmployee').value;
+            const selectedMonth = document.getElementById('historyFilterMonth').value;
+
+            let salaries = await db.salaries.toArray();
+
+            // Filter logic
+            if (selectedEmp !== 'ALL') {
+                salaries = salaries.filter(s => s.employeeId === Number(selectedEmp));
+            }
+            if (selectedMonth) {
+                salaries = salaries.filter(s => s.month === selectedMonth);
+            }
+
+            // Sort calculations chronologically (descending)
+            salaries.sort((a, b) => b.month.localeCompare(a.month) || b.calculatedAt - a.calculatedAt);
+
+            // Populate table & statistics
+            const body = document.getElementById('historyTableBody');
+            body.innerHTML = '';
+
+            let totalNet = 0;
+            let totalEpf = 0;
+
+            if (salaries.length === 0) {
+                body.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">No matching salary calculation records found.</td></tr>`;
+                document.getElementById('statsTotalSlips').textContent = 0;
+                document.getElementById('statsTotalNet').textContent = "Rs. 0.00";
+                document.getElementById('statsTotalEpf').textContent = "Rs. 0.00";
+                return;
+            }
+
+            for (const record of salaries) {
+                const emp = await db.employees.get(record.employeeId);
+                const empName = emp ? emp.name : "Unknown Employee";
+
+                totalNet += record.net;
+                totalEpf += record.epfAmt;
+
+                const [year, month] = record.month.split('-');
+                const salaryDate = new Date(year, month - 1);
+                const monthDisplayStr = salaryDate.toLocaleString('default', { month: 'short', year: 'numeric' });
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:600; color:var(--primary);">${monthDisplayStr}</td>
+                    <td style="font-weight:600; color:var(--text-main);">${empName}</td>
+                    <td>${record.days} <span style="color:var(--text-muted); font-size:12px;">(${record.rate})</span></td>
+                    <td style="font-family:monospace; font-weight:600;">${record.basic.toFixed(2)}</td>
+                    <td style="font-family:monospace;">${record.otPay.toFixed(2)} <span style="color:var(--text-muted); font-size:12px;">(${record.otHours}h)</span></td>
+                    <td style="font-family:monospace;">${record.attAllowance.toFixed(2)}</td>
+                    <td style="color:var(--danger); font-family:monospace;">${(record.epfAmt + record.advance).toFixed(2)}</td>
+                    <td style="color:var(--success); font-family:monospace; font-weight:700;">${record.net.toFixed(2)}</td>
+                    <td style="text-align: right;">
+                        <div class="action-btn-group">
+                            <button class="action-btn action-btn-primary" title="Download Slip PDF" onclick="downloadSingleHistoryPDF(${record.id})">
+                                <span class="material-icons">file_download</span>
+                            </button>
+                            <button class="action-btn action-btn-danger" title="Delete Calculation Record" onclick="deleteHistoryRecord(${record.id})">
+                                <span class="material-icons">delete_forever</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                body.appendChild(tr);
+            }
+
+            document.getElementById('statsTotalSlips').textContent = salaries.length;
+            document.getElementById('statsTotalNet').textContent = `Rs. ${totalNet.toFixed(2)}`;
+            document.getElementById('statsTotalEpf').textContent = `Rs. ${totalEpf.toFixed(2)}`;
+        }
+
+        async function deleteHistoryRecord(id) {
+            if (confirm("Are you sure you want to permanently delete this salary calculation record from database history?")) {
+                await db.salaries.delete(id);
+                showToast("Calculation history record deleted!", "success");
+                loadSalaryHistory();
+            }
+        }
+
+        // --- SINGLE PDF GENERATION FROM HISTORY ---
+        async function downloadSingleHistoryPDF(salId) {
+            try {
+                const res = await db.salaries.get(Number(salId));
+                if (!res) return alert("Record not found");
+                const emp = await db.employees.get(res.employeeId);
+                const name = emp ? emp.name : "Unknown Employee";
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF("p", "mm", [150, 90]); // Exactly 15cm x 9cm landscape orientation
+
+                // Parse Dates
+                const today = new Date(res.calculatedAt || Date.now());
+                const issuedMonthStr = today.toLocaleString('default', { month: 'long', year: 'numeric' });
+                
+                const [year, month] = res.month.split('-');
+                const salaryDate = new Date(year, month - 1);
+                const salaryMonthStr = salaryDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+                const pdfContainer = document.getElementById('pdf-container');
+                pdfContainer.innerHTML = '';
+
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = createSlipHTML({
+                    name: name,
+                    days: res.days,
+                    rate: res.rate,
+                    otHours: res.otHours,
+                    otRate: res.otRate,
+                    epfPercent: res.epfPercent,
+                    advance: res.advance
+                }, res, salaryMonthStr, issuedMonthStr);
+                pdfContainer.appendChild(wrapper);
+
+                await new Promise(r => setTimeout(r, 150));
+
+                const canvas = await html2canvas(wrapper.firstElementChild, { scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+
+                pdf.addImage(imgData, 'PNG', 0, 0, 150, 90);
+                pdfContainer.innerHTML = '';
+
+                pdf.save(`Payslip_${name.replace(/\s+/g, '_')}_${res.month}.pdf`);
+                showToast("Salary slip downloaded successfully!", "success");
+            } catch (err) {
+                console.error(err);
+                alert("Failed to generate PDF: " + err.message);
+            }
+        }
+
+        // --- COMBINED PDF SLIPS GENERATION FOR WORKSPACE ---
         async function downloadAllPDF() {
-            // Ensure calculations are up to date
-            calculateAll();
+            try {
+                await calculateAll();
 
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF("p", "mm", "a4");
+                const validEmployees = employees.filter(e => e.dbEmployeeId && e.result);
+                if (validEmployees.length === 0) {
+                    alert("No valid employee calculations to download. Set employees and calculate first.");
+                    return;
+                }
 
-            // Date Logic
-            const today = new Date();
-            const issuedMonthStr = today.toLocaleString('default', { month: 'long', year: 'numeric' });
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF("p", "mm", "a4");
 
-            const prevMonthDate = new Date();
-            prevMonthDate.setMonth(today.getMonth() - 1);
-            const salaryMonthStr = prevMonthDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-
-            // Helper to generate HTML for a single slip in a compact two-column layout
-            const createSlipHTML = (emp, res) => {
-                return `
-            <div style="font-family: 'Roboto', sans-serif; padding: 18px 24px; background: #fff; border: 1.5px dashed #4facfe; width: 620px; box-sizing: border-box; border-radius: 8px;">
-                <div style="text-align: center; font-weight: 700; font-size: 20px; margin-bottom: 10px; color: #2c3e50; letter-spacing: 0.5px;">Pathumi Garment - Salary Slip</div>
+                const selectedMonth = document.getElementById('salaryMonth').value;
+                const [year, month] = selectedMonth.split('-');
+                const salaryDate = new Date(year, month - 1);
                 
-                <div style="display: flex; justify-content: space-between; font-size: 13px; color: #7f8c8d; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
-                    <div><strong>Salary Month:</strong> ${salaryMonthStr}</div>
-                    <div><strong>Issued Date:</strong> ${issuedMonthStr}</div>
+                const salaryMonthStr = salaryDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+                const today = new Date();
+                const issuedMonthStr = today.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+                const pdfContainer = document.getElementById('pdf-container');
+                pdfContainer.innerHTML = '';
+
+                validEmployees.forEach(emp => {
+                    const wrapper = document.createElement('div');
+                    wrapper.innerHTML = createSlipHTML({
+                        name: emp.name,
+                        days: emp.days,
+                        rate: emp.rate,
+                        otHours: emp.otHours,
+                        otRate: emp.otRate,
+                        epfPercent: emp.epfPercent,
+                        advance: emp.advance
+                    }, emp.result, salaryMonthStr, issuedMonthStr);
+                    pdfContainer.appendChild(wrapper);
+                });
+
+                await new Promise(r => setTimeout(r, 150));
+
+                const slips = pdfContainer.children;
+                let yOffset = 8;
+                const pageHeight = 297; 
+                const slipSpacing = 4;
+                const pdfWidth = 150; 
+                const pdfHeight = 90;
+
+                for (let i = 0; i < slips.length; i++) {
+                    const canvas = await html2canvas(slips[i], { scale: 2 });
+                    const imgData = canvas.toDataURL('image/png');
+
+                    if (i > 0 && (i % 3 === 0 || yOffset + pdfHeight > pageHeight - 8)) {
+                        pdf.addPage();
+                        yOffset = 8;
+                    }
+
+                    pdf.addImage(imgData, 'PNG', 30, yOffset, pdfWidth, pdfHeight);
+                    yOffset += pdfHeight + slipSpacing;
+                }
+
+                pdfContainer.innerHTML = '';
+                pdf.save(`Pathumi_Garment_Payslips_${selectedMonth}.pdf`);
+                showToast("Combined PDF slips downloaded!", "success");
+            } catch (err) {
+                console.error("PDF download failed:", err);
+                alert("Failed to download PDF: " + err.message);
+            }
+        }
+
+        // --- PDF SLIP LAYOUT TEMPLATE ---
+        const createSlipHTML = (emp, res, salaryMonthStr, issuedMonthStr) => {
+            return `
+            <div style="font-family: 'Inter', sans-serif; padding: 25px 30px; background: #ffffff; border: 1.5px dashed #6366f1; width: 700px; height: 420px; box-sizing: border-box; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; color: #0f172a;">
+                <div>
+                    <!-- Header with base64 Logo -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 15px;">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAC0iSURBVHhe7X2HWxZJ9u7+D/fu7syYJ+zMGOAjY05jFsGMYB5zDgRBJYmAKCKCCmIkKioGQEQlSDIgEhSEUVQUEFGCCoiE771PdXd1V3d/IO7O/nZ/z3OPT013V506dc77VurwMX/B/5f/qPxFmfHfKVplBiNsWVd6/53yX0iAEtCOLoAlZawQPV31qY3O7Pzn5L+QgO4IBZMCyl7TREFnjyxhushQ2v33y3+QgH8lWCXIynM2TzkCaHudsonTc2WdyZaaLVdlXdf/mMEaLUdXBDcsVMwWGHL2WlJ2dPlibahzFcnpTB5quLO6ny9/McIUAPAgkooEcjRCV5XdrpO/D92KpLbIGXqcqXo8uOfk/8QARQEJUB8mXRUJql+dxPfjnKU6Gpbmb4k3dH5svybCOjKOQJKO0OAopSbWzsDiQWTv+anL3keq8e3xerIy9m68tH2PyNfJKCrxYafXzrsvp8LqcEOcm/d1ASwHik5ByiQrk+nROZ8nWMon1+3SmiNbf5QE0DZ0E0Fj6U7cXxJio1MCutNA5wQwgIs6NE8CWw6SInGAyYFVksXmyUmWt6W0wwLNgi2Vq9viY+Ft0GuldI6HJLScHv9EAuTOKgFi82VThAgMAZwFnZQLNWROfznIzkQCmNjnR4TkC6ehw1dp0WbJ6ky64xuroyJAyVBnQreO0hCmgOoCXtAVApBAoEDwwIu2VaNGElpXuGJLRNusSLaUQvVp+5R8td/caBH/SX52Jrrb0y0qAr5OdDiqIkDeu+Q9XurtbGASyJItUt7W0YJ376tQ/CIHmYWJuJkbi/jbkbiUeRrXcmJwqyAOhWW38ab+Jdq0LcIUp/SRJrE1pkPI1w7Jf2Vdtv6/Jt0goCvGqXNEqLOdOcz0em5nQnu9kE/qyaaYDrR2NKPgeRbCbu6H84nFmOc1DJauGli66sNqpwaW2/Uww80QVm4GsHI1gOVODaxcNJjhYoiF3iPgcnoZzqYdwuOXuWjTflKNNKVIi3W7GAsd6VIM3RsF3ZVuEKBLWOCVogZeBr6OGyupB2rRrm1FXlkm/GOdYOMzDBbuAzDD3Rj2IQtw8to+3Lx/EQ+f5eB1XTk+tNShVduMdrSgufU9ahoqUPoqH2l5V3AicS8cQxdhlrspLFz0sNh3LA5fccOTyjweYBnZylikEcqXKTuWLmGn4+5LtwhQzmm8Y7T30l5BndMFMD+82XJxahGOn9uakJQTg7WBFpi8cwBmupoj4KIL8p5k4VNroyI41h8tBybXPrHFTDmkzqfPH5BTkgbfM/aY4WIGCxd9bDu+ELeLrqNd+1nRKaQ1g0/SlCTGKotNKfJ8JW66pFMCWEeUhnln6FxOHZQDxPZ4lgAxWCG/rf0Tku5FY/HesZjqOgB2R22RlhePj831UrsqP+RJ9JPVkxGhRUdHG941VCLhTjRWB1jCYqce1gfMwP3SFNkCLAeN95uNg/jdmT/dAZwK1f0iAcKVKli5w2y5EngmCMW+/0X1Y9iFzIOFW3+sC5iJu8U38PptOd5/rEdHB38HK7UnB1oEmPFFBEYAiU1Ep7WtBbV1b/D63VPE3w7Hwl2/YZqrPnxj7FD/8Y08HuEoxcomdcwsAfSoS5RlKgKUCnJhG6SJ5vPXOoEXnKbnZJ6/mHkSc71MMc97CK7lnEHJywcoe1XM9VQ52OopTfKDBVlqX9Rh7TD1WlqbUPT8Dv6ouI+Imwcxc5cpFu0dg9vF16DVtqnq80cpFuU0K7cv4dQdURHQPVGDwScJfAkMeY9paWvE3rN2mLpzIByPLUJpRR7uP8pEY/N7wTQTBAVXFixPukiqwgcZGDrqiza0HXj9rhy3C68hv+wWlvtOxHQXDWLSjqjuwrk6bOcSCVB2DuU1TZ3LVxJAt2VU5EHJk8IJbQc+Ntdhx8mlmOY2EAGxbkgridsOt/HgxINpbyytfIPBUILb5OsHv+H48Kf9D1p6yVytJkHQ6kJWbCfdADzj5OiMsNgzvGxtkOi2tjbiScQwPy2/B/dRKWLnpITjOE+0dnwU9GgttiSFHJFxJSPelWwSog6UiDUfqFK/DOsLXa2ypx7YQG0z3GIDYzGO4djcGeU8yxXIKyNmEs/hh9E/oObIPeo3si16j++LHcT8jOTsVLZ8/ITU7FXuCfbHSeRWW2i/DMscVWO6wAsvsV2CDxyYciQhGQXE+t4bsCd6DniN7c7aoPdOZg1FYWihvF224mh2BR8+z4Ru1FVauGgRf2YUObatsF0Tj4acj5TZVssfG8yX5agJYR2gjtLdJDrF64HqTd+Q6TNv5KyKSAxCfHY57j1Nk9kkqfVaCXsP6ogcBa1RfnoBRfdF7dD/oWRhiwebFOHz6CIqfFKOtnQdH9ANafPr8CXcf3IHPIR8s2LoQvUf244EXbJDUa1Q/DJ41lFuQ5R2rAxeSQ3C/9Bp2hiyHlYs+LmedlLUh+aqciuSY0HPJfucjQ0GApCxviD9n53M6zcj0hPlZZlGrxaWsE5jm+gv2nnHA9dyzuJx+WrTFpmPRoeg5ggesz5jv0Wd0P/Qc3gdTl0/D3fy76NCSBZoBXfRBPvWRIwE4+koUDCyNOZsU/F7kOLIfSp+RaU0OantHK/wit+Lh8zRs8J+OWS6GKH35oIt45dMfGws7O7Dgy3V0EEDnNVFJ1rAOB5hrFctkPn9Tgtm7DLA6YCpKXt3Hvmh7dHDDV2lTi9Q7qTxYhIDR33Og+RzxQWsbnY+FJANeeS09PiDn7+rfYv7mBeJ0Rgj4eUJ/fGgkiz4LHm+jvrEae6M24o+KXFjvMsf6A9PxqfWj1BZFiWuHtid1TpqUtpUkUGEIYMFjK0q9mgYpOSw4IT7XkQuZQz0ilsPSvT9yn6bB7fQKVNU+kznHJcFpMm/beTtwwPcY3hsHTx1knJfrS/t7ugWVByuCRBbaz81YsGkBN7X1G/Mjzieek61dvB3BhlaLtIJYRCcfQEzaYUx31eBs8mFFfEz8IgEKH8U8iShdoiCAJYHNUwYn7QAkB1hmef2CskxYuA6A15lNuJkXg9C43Sqbom3mn/+JA1ixbYUqMBkZHHC0VyrKRH1pG9rwoR7D545C9oNsrg1aR1f9dm0L7ILmovxNMZb7ToKN62A0NFXLcKHgy6caJci0g9JytXQyApR5NGh6zbDPJeUIICG2wy1sOaa4DkBJZS42BE1DxVs67zIA0XPh+lNLM36zHo939e8ES3wbZGu6YvsqDJ49lDvWNtSq7DwoysWMdbMw3HokXA64oLH5gwgyOWbkZGC102qRGAqM1ImoLeBaTjRC4lwRm3EU010GIfbWMJE4JkZKno65ntdgidGFr2oN0C3qqjzAagIkzbfvK7k99dbgebhbeh1bQ2dxdbjaipEigqDVIjI2Eh7+u5h2tHj28hkMphrhu2G98PPE/ug5qg+8DnszOrwfExZNwncjeuPXSf25KWz2mjlo/tQoEKDl1h7r9TZ4/uq51L6iE9DzhsY3sHE3x6vaIlh7m2Jd0HTRfyqyTsjUpbZomZSvlk4I4B2WEgsu BYwkSoJyBHQg6f4ZTNz5Ky5mnMCBWHucvEanH8kGPadtkGSxaBpeVPDrBMlPTLsGvakG3OI8aKIGR84Ec1vLoLBDirpaWK+zxj9++wWR8ZHoMbQ3eozqiwlLJqG0rESMJSbuLHyCCNm6fJBSB9qw4eBUpOVfgu+5zZi+Qx/Pqx+LhHF6yplAta4o45VIoGV/kZTkinwD0j+aRytLgbM3JbwNcmPjHb0eU1wG4sWbIvzuNxLpBZcVbUhDngbQ1PwRo+eN4Z+ckvuC5/x9Qc8Rvfn7glHkvA/mbbBFy+cWRX0tnpU/gdkMc/QY1Qc9uR0Pf09hPnMo97ib6L18/QLTV1rpXF9oXDQv8Mo2HLqyHYl3z2Ca8yBczQ4TgaV6LAHsNY8DxYQtY4npZAQoHZESO32wQ1A+AsgitipgMmZ7DEZ5TTFm7BrIbUGFWkw9KRiSqmoqYbV2OlrbyNurDmTmpOPbwT3EO1kC6tQVlmhu+SjYkRNA8l5WPcevEwdyuj0JYeROeuzPaGp5z+m9aajAmIW/yeKS25GIiU71stylefSj8IpchY+fyPc7ElBnbvkhMskfCVlR/B95Ykbo2dSDCL++D8l55xAa74nmVvITKLbDaXHgvDP3gxMOA+4nUOxsIAmLky5MlOU0yQhgC+TXdHhKDXfWECukPOLGAeQ/y0JTSz3ynqXgZKKvrDy9IA6HE5xxJuMI3CNXcFOVVN6B/ecckFF0BW5hK/GpjX/IRsHJKkzE3cc3EXTRhWvnYvpxPK18xICjRWTyXp//@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" alt="Logo" style="height: 40px; width: auto; object-fit: contain; border-radius: 4px; min-width: 40px;" />
+                        <div style="font-weight: 800; font-size: 26px; color: #1e293b; letter-spacing: 0.5px; font-family: 'Outfit', sans-serif;">Pathumi Garment</div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; font-size: 15px; color: #64748b; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                        <div><strong>Salary Month:</strong> ${salaryMonthStr}</div>
+                        <div><strong>Issued Date:</strong> ${issuedMonthStr}</div>
+                    </div>
+                    
+                    <div style="font-size: 16px; margin-bottom: 12px; color: #0f172a;">
+                        <strong>Employee Name:</strong> <span style="text-transform: uppercase; font-weight: 700;">${emp.name || "N/A"}</span>
+                    </div>
                 </div>
                 
-                <div style="font-size: 14px; margin-bottom: 12px; color: #2c3e50;">
-                    <strong>Employee Name:</strong> <span style="text-transform: uppercase; font-weight: 500;">${emp.name || "N/A"}</span>
-                </div>
-                
-                <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14.5px; margin-bottom: 6px;">
                     <thead>
-                        <tr style="border-bottom: 2px solid #eee; font-weight: 700; color: #34495e;">
-                            <th style="text-align: left; padding: 6px 0; width: 50%;">Earnings</th>
-                            <th style="text-align: left; padding: 6px 0; width: 50%;">Deductions</th>
+                        <tr style="border-bottom: 2px solid #f1f5f9; font-weight: 700; color: #475569; font-size: 15px;">
+                            <th style="text-align: left; padding: 5px 0; width: 50%;">Earnings</th>
+                            <th style="text-align: left; padding: 5px 0; width: 50%;">Deductions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="padding: 6px 0; vertical-align: top;">
-                                <div style="display: flex; justify-content: space-between; padding-right: 20px;">
+                            <td style="padding: 4px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between; padding-right: 15px;">
                                     <span>Basic (${emp.days || 0} days @ ${emp.rate || 0}):</span>
-                                    <span style="font-family: monospace;">${(res.basic || 0).toFixed(2)}</span>
+                                    <span style="font-family: monospace; font-weight: 700; font-size: 15px;">${(res.basic || 0).toFixed(2)}</span>
                                 </div>
                             </td>
-                            <td style="padding: 6px 0; vertical-align: top;">
+                            <td style="padding: 4px 0; vertical-align: top;">
                                 <div style="display: flex; justify-content: space-between;">
                                     <span>EPF (${emp.epfPercent || 0}%):</span>
-                                    <span style="font-family: monospace;">${(res.epfAmt || 0).toFixed(2)}</span>
+                                    <span style="font-family: monospace; font-weight: 700; font-size: 15px;">${(res.epfAmt || 0).toFixed(2)}</span>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding: 6px 0; vertical-align: top;">
-                                <div style="display: flex; justify-content: space-between; padding-right: 20px;">
+                            <td style="padding: 4px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between; padding-right: 15px;">
                                     <span>OT (${emp.otHours || 0} hrs @ ${emp.otRate || 0}):</span>
-                                    <span style="font-family: monospace;">${(res.otPay || 0).toFixed(2)}</span>
+                                    <span style="font-family: monospace; font-weight: 700; font-size: 15px;">${(res.otPay || 0).toFixed(2)}</span>
                                 </div>
                             </td>
-                            <td style="padding: 6px 0; vertical-align: top;">
+                            <td style="padding: 4px 0; vertical-align: top;">
                                 <div style="display: flex; justify-content: space-between;">
                                     <span>Advance:</span>
-                                    <span style="font-family: monospace;">${(emp.advance || 0).toFixed(2)}</span>
+                                    <span style="font-family: monospace; font-weight: 700; font-size: 15px;">${(emp.advance || 0).toFixed(2)}</span>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding: 6px 0; vertical-align: top;">
-                                <div style="display: flex; justify-content: space-between; padding-right: 20px;">
+                            <td style="padding: 4px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between; padding-right: 15px;">
                                     <span>Attendance Allowance:</span>
-                                    <span style="font-family: monospace;">${(res.attAllowance || 0).toFixed(2)}</span>
+                                    <span style="font-family: monospace; font-weight: 700; font-size: 15px;">${(res.attAllowance || 0).toFixed(2)}</span>
                                 </div>
                             </td>
-                            <td style="padding: 6px 0; vertical-align: top;">
+                            <td style="padding: 4px 0; vertical-align: top;">
                                 <!-- Empty cell -->
                             </td>
                         </tr>
-                        <tr style="border-top: 1px solid #eee; font-weight: 700; color: #2c3e50;">
-                            <td style="padding: 8px 0; vertical-align: top;">
-                                <div style="display: flex; justify-content: space-between; padding-right: 20px;">
+                        <tr style="border-top: 1px solid #f1f5f9; font-weight: 700; color: #1e293b;">
+                            <td style="padding: 6px 0; vertical-align: top;">
+                                <div style="display: flex; justify-content: space-between; padding-right: 15px;">
                                     <span>Gross Earnings:</span>
-                                    <span style="font-family: monospace;">${(res.basic + res.otPay + res.attAllowance).toFixed(2)}</span>
+                                    <span style="font-family: monospace; font-weight: 800; font-size: 15px;">${(res.basic + res.otPay + res.attAllowance).toFixed(2)}</span>
                                 </div>
                             </td>
-                            <td style="padding: 8px 0; vertical-align: top;">
+                            <td style="padding: 6px 0; vertical-align: top;">
                                 <div style="display: flex; justify-content: space-between;">
                                     <span>Total Deductions:</span>
-                                    <span style="font-family: monospace;">${(res.epfAmt + emp.advance).toFixed(2)}</span>
+                                    <span style="font-family: monospace; font-weight: 800; font-size: 15px;">${(res.epfAmt + emp.advance).toFixed(2)}</span>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
                 
-                <div style="border-top: 2px solid #2c3e50; padding-top: 8px; text-align: right;">
-                    <span style="font-size: 16px; font-weight: 700; color: #2ecc71;">Net Salary: Rs. ${(res.net || 0).toFixed(2)}</span>
+                <div style="border-top: 2px solid #1e293b; padding-top: 6px; text-align: right;">
+                    <span style="font-size: 20px; font-weight: 800; color: #10b981;">Net Salary: Rs. ${(res.net || 0).toFixed(2)}</span>
                 </div>
             </div>
             `;
-            };
-
-            const pdfContainer = document.getElementById('pdf-container');
-            pdfContainer.innerHTML = '';
-
-            // Prepare all slips in the hidden container
-            employees.forEach(emp => {
-                if (emp.result) {
-                    const wrapper = document.createElement('div');
-                    wrapper.innerHTML = createSlipHTML(emp, emp.result);
-                    pdfContainer.appendChild(wrapper);
-                }
-            });
-
-            // Wait for DOM
-            await new Promise(r => setTimeout(r, 100));
-
-            const slips = pdfContainer.children;
-            let yOffset = 10;
-            const pageHeight = 297; // A4 mm
-
-            for (let i = 0; i < slips.length; i++) {
-                const canvas = await html2canvas(slips[i], { scale: 2 });
-                const imgData = canvas.toDataURL('image/png');
-                
-                // Scale width to fit A4 margins (10mm left, 10mm right = 190mm wide printable area)
-                const pdfWidth = 190; 
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-                // Check if adding this slip exceeds the page height limit (leaving 10mm margin at the bottom)
-                if (yOffset + pdfHeight > pageHeight - 10) {
-                    pdf.addPage();
-                    yOffset = 10;
-                }
-
-                pdf.addImage(imgData, 'PNG', 10, yOffset, pdfWidth, pdfHeight);
-
-                yOffset += pdfHeight + 6; // 6mm spacing between slips
-            }
-
-            // Cleanup
-            pdfContainer.innerHTML = '';
-
-            pdf.save(`Pathumi_Garment_Returns_${issuedMonthStr}.pdf`);
-        }
+        };
     </script>
 
 </body>
