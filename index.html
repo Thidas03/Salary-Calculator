@@ -585,7 +585,8 @@
         .table-responsive {
             background: #ffffff;
             border-radius: 10px;
-            overflow: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             box-shadow: var(--card-shadow);
             border: 1px solid var(--border-color);
             margin-bottom: 22px;
@@ -593,6 +594,7 @@
 
         .data-table {
             width: 100%;
+            min-width: 880px;
             border-collapse: collapse;
             text-align: left;
             font-size: 13.5px;
@@ -853,10 +855,14 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(17, 24, 39, 0.5);
+            background-color: rgba(17, 24, 39, 0.55);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 16px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .modal-overlay.show {
@@ -865,12 +871,29 @@
 
         .modal-box {
             background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-radius: 14px;
+            box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.18), 0 8px 12px -6px rgba(0, 0, 0, 0.08);
             width: 100%;
-            max-width: 520px;
-            padding: 24px;
+            max-width: 540px;
+            max-height: calc(100vh - 32px);
+            max-height: calc(100dvh - 32px);
+            display: flex;
+            flex-direction: column;
             border: 1px solid var(--border-color);
+            margin: auto;
+            position: relative;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96) translateY(-6px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
         .modal-header {
@@ -878,8 +901,8 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #f3f4f6;
-            padding-bottom: 12px;
-            margin-bottom: 18px;
+            padding: 18px 22px 14px 22px;
+            flex-shrink: 0;
         }
 
         .modal-header h2 {
@@ -887,15 +910,35 @@
             font-size: 18px;
             color: var(--text-main);
             font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .modal-body {
+            padding: 18px 22px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1 1 auto;
+        }
+
+        .modal-body .form-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .modal-body .form-group {
+            margin-bottom: 12px;
         }
 
         .modal-footer {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            margin-top: 20px;
+            padding: 14px 22px 18px 22px;
             border-top: 1px solid #f3f4f6;
-            padding-top: 16px;
+            flex-shrink: 0;
+            background: #fafbfb;
+            border-bottom-left-radius: 14px;
+            border-bottom-right-radius: 14px;
         }
 
         /* Notification Toast */
@@ -970,6 +1013,71 @@
 
             .topbar {
                 padding: 0 18px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .modal-overlay {
+                padding: 8px;
+            }
+
+            .modal-box {
+                max-height: calc(100vh - 16px);
+                max-height: calc(100dvh - 16px);
+                border-radius: 12px;
+            }
+
+            .modal-header {
+                padding: 14px 16px 12px 16px;
+            }
+
+            .modal-header h2 {
+                font-size: 16px;
+            }
+
+            .modal-body {
+                padding: 14px 16px;
+            }
+
+            .modal-body .form-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .modal-body .form-group {
+                margin-bottom: 10px;
+            }
+
+            .modal-footer {
+                padding: 12px 16px 14px 16px;
+                flex-direction: column-reverse;
+                gap: 8px;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .content-body {
+                padding: 12px;
+            }
+
+            .topbar {
+                padding: 0 12px;
+            }
+
+            .calc-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls-group {
+                width: 100%;
             }
         }
     </style>
@@ -1383,7 +1491,9 @@
                                     <th>Basic</th>
                                     <th>OT (Hours)</th>
                                     <th>Allowance</th>
-                                    <th>Deductions</th>
+                                    <th>EPF Deduct</th>
+                                    <th>Advance</th>
+                                    <th>Total Deduct</th>
                                     <th>Net Salary</th>
                                     <th style="text-align: right;">Actions</th>
                                 </tr>
@@ -1399,28 +1509,28 @@
     </div>
 
     <!-- Edit Employee Modal -->
-    <div id="employeeModal" class="modal-overlay">
+    <div id="employeeModal" class="modal-overlay" onclick="if(event.target === this) closeEmployeeModal()">
         <div class="modal-box">
             <div class="modal-header">
                 <h2 id="modalTitle">Edit Employee Details</h2>
-                <button class="btn-icon" onclick="closeEmployeeModal()">&times;</button>
+                <button class="btn-icon" onclick="closeEmployeeModal()" title="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="modalEmpId">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Employee Code</label>
+                        <label for="modalEmpCode">Employee Code</label>
                         <input type="text" id="modalEmpCode" placeholder="PG-001">
                     </div>
                     <div class="form-group">
-                        <label>Full Name *</label>
+                        <label for="modalEmpName">Full Name *</label>
                         <input type="text" id="modalEmpName" placeholder="Enter employee full name">
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Role / Designation</label>
+                        <label for="modalEmpDesignation">Role / Designation</label>
                         <select id="modalEmpDesignation">
                             <option value="Sewing Machine Operator">Sewing Machine Operator</option>
                             <option value="Pattern Cutter">Pattern Cutter</option>
@@ -1429,14 +1539,14 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Contact Phone</label>
+                        <label for="modalEmpPhone">Contact Phone</label>
                         <input type="tel" id="modalEmpPhone" placeholder="07X XXXXXXX">
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Default Daily Rate (Rs.)</label>
+                        <label for="modalEmpRate">Default Daily Rate (Rs.)</label>
                         <select id="modalEmpRate">
                             <option value="1100">1100</option>
                             <option value="1200">1200</option>
@@ -1450,7 +1560,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Default Attendance Status</label>
+                        <label for="modalEmpAtt">Default Attendance Status</label>
                         <select id="modalEmpAtt">
                             <option value="15000">15000</option>
                             <option value="5000">5000</option>
@@ -1461,22 +1571,25 @@
                     </div>
                 </div>
 
-                <div class="form-grid" style="align-items: center; margin-top: 8px;">
+                <div class="form-grid" style="align-items: flex-end;">
                     <div class="form-group">
-                        <div class="checkbox-wrapper">
+                        <label>EPF Status</label>
+                        <div class="checkbox-wrapper" style="height: 42px;">
                             <input type="checkbox" id="modalEmpEpf" checked onchange="toggleModalEpf()">
-                            <label for="modalEmpEpf" style="margin: 0;">EPF Applicable</label>
+                            <label for="modalEmpEpf" style="margin: 0; cursor: pointer;">EPF Applicable</label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>EPF Percentage (%)</label>
+                        <label for="modalEmpEpfPercent">EPF Percentage (%)</label>
                         <input type="number" id="modalEmpEpfPercent" value="8" min="0" max="100">
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveEmployeeModalForm()">Save Changes</button>
+                <button class="btn btn-primary" onclick="saveEmployeeModalForm()">
+                    <span class="material-icons" style="font-size: 18px;">save</span> Save Changes
+                </button>
             </div>
         </div>
     </div>
@@ -1980,6 +2093,16 @@
             document.getElementById('employeeModal').classList.remove('show');
             currentModalCardId = null;
         }
+
+        // Close modal on Escape key press
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('employeeModal');
+                if (modal && modal.classList.contains('show')) {
+                    closeEmployeeModal();
+                }
+            }
+        });
 
         function toggleModalEpf() {
             const checked = document.getElementById('modalEmpEpf').checked;
@@ -2515,7 +2638,7 @@
             let totalEpf = 0;
 
             if (salaries.length === 0) {
-                body.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 25px; color:var(--text-muted);">No calculation records found for the selected filters.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 25px; color:var(--text-muted);">No calculation records found for the selected filters.</td></tr>`;
                 document.getElementById('statsTotalSlips').textContent = 0;
                 document.getElementById('statsTotalNet').textContent = "Rs. 0.00";
                 document.getElementById('statsTotalEpf').textContent = "Rs. 0.00";
@@ -2545,7 +2668,14 @@
                     <td style="font-family:monospace; font-weight:600;">Rs. ${(record.basic || 0).toFixed(2)}</td>
                     <td style="font-family:monospace;">Rs. ${(record.otPay || 0).toFixed(2)} <span style="color:var(--text-muted); font-size:11.5px;">(${record.otHours}h)</span></td>
                     <td style="font-family:monospace;">Rs. ${(record.attAllowance || 0).toFixed(2)}</td>
-                    <td style="color:var(--danger); font-family:monospace;">Rs. ${((record.epfAmt || 0) + (record.advance || 0)).toFixed(2)}</td>
+                    <td style="color:var(--danger); font-family:monospace; font-weight:600;">
+                        Rs. ${(record.epfAmt || 0).toFixed(2)}
+                        <span style="font-size:11px; color:var(--text-muted); display:block; font-weight:normal; font-family:inherit;">
+                            ${record.epfApplicable ? `(${record.epfPercent || 8}%)` : '(0%)'}
+                        </span>
+                    </td>
+                    <td style="color:var(--danger); font-family:monospace;">Rs. ${(record.advance || 0).toFixed(2)}</td>
+                    <td style="color:var(--danger); font-family:monospace; font-weight:700;">Rs. ${((record.epfAmt || 0) + (record.advance || 0)).toFixed(2)}</td>
                     <td style="color:var(--success); font-family:monospace; font-weight:700;">Rs. ${(record.net || 0).toFixed(2)}</td>
                     <td style="text-align: right;">
                         <div class="table-actions">
