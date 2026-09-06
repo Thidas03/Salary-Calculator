@@ -470,6 +470,18 @@
             cursor: pointer;
         }
 
+        .att-dual-input {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .att-dual-input {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Buttons: Solid, Clean, Professional */
         .btn {
             padding: 9px 18px;
@@ -1223,13 +1235,17 @@
 
                                     <div class="form-group">
                                         <label for="regEmpAtt">Default Attendance Allowance</label>
-                                        <select id="regEmpAtt">
-                                            <option value="15000" selected>15000 (Full Attendance Bonus)</option>
-                                            <option value="5000">5000 (Partial Bonus)</option>
-                                            <option value="4000">4000 (Basic Allowance)</option>
-                                            <option value="2000">2000 (Reduced Allowance)</option>
-                                            <option value="0">0 (No Bonus)</option>
-                                        </select>
+                                        <div class="att-dual-input">
+                                            <select id="regEmpAtt" onchange="onRegAttSelectChange(this.value)">
+                                                <option value="15000" selected>15000 (Full Bonus)</option>
+                                                <option value="5000">5000 (Partial Bonus)</option>
+                                                <option value="4000">4000 (Basic Allowance)</option>
+                                                <option value="2000">2000 (Reduced Allowance)</option>
+                                                <option value="0">0 (No Bonus)</option>
+                                                <option value="CUSTOM">Custom Amount...</option>
+                                            </select>
+                                            <input type="number" id="regEmpAttManual" value="15000" min="0" step="any" placeholder="Manual Rs." oninput="onRegAttManualInput(this.value)">
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1561,13 +1577,17 @@
                     </div>
                     <div class="form-group">
                         <label for="modalEmpAtt">Default Attendance Status</label>
-                        <select id="modalEmpAtt">
-                            <option value="15000">15000</option>
-                            <option value="5000">5000</option>
-                            <option value="4000">4000</option>
-                            <option value="2000">2000</option>
-                            <option value="0">0</option>
-                        </select>
+                        <div class="att-dual-input">
+                            <select id="modalEmpAtt" onchange="onModalAttSelectChange(this.value)">
+                                <option value="15000">15000 (Full Bonus)</option>
+                                <option value="5000">5000 (Partial Bonus)</option>
+                                <option value="4000">4000 (Basic Allowance)</option>
+                                <option value="2000">2000 (Reduced Allowance)</option>
+                                <option value="0">0 (No Bonus)</option>
+                                <option value="CUSTOM">Custom Amount...</option>
+                            </select>
+                            <input type="number" id="modalEmpAttManual" value="15000" min="0" step="any" placeholder="Manual Rs." oninput="onModalAttManualInput(this.value)">
+                        </div>
                     </div>
                 </div>
 
@@ -1798,8 +1818,31 @@
             document.getElementById('regEmpEpfPercent').disabled = !checked;
         }
 
+        function onRegAttSelectChange(val) {
+            const manualInput = document.getElementById('regEmpAttManual');
+            if (val !== 'CUSTOM') {
+                manualInput.value = val;
+            } else {
+                manualInput.focus();
+            }
+        }
+
+        function onRegAttManualInput(val) {
+            const select = document.getElementById('regEmpAtt');
+            const trimmed = String(val).trim();
+            if (['15000', '5000', '4000', '2000', '0'].includes(trimmed)) {
+                select.value = trimmed;
+            } else {
+                select.value = 'CUSTOM';
+            }
+        }
+
         function resetRegisterForm() {
             document.getElementById('regEmployeeForm').reset();
+            const attSelect = document.getElementById('regEmpAtt');
+            const attManual = document.getElementById('regEmpAttManual');
+            if (attSelect) attSelect.value = '15000';
+            if (attManual) attManual.value = '15000';
             document.getElementById('regEmpEpf').checked = true;
             document.getElementById('regEmpEpfPercent').disabled = false;
             document.getElementById('regEmpEpfPercent').value = 8;
@@ -1812,7 +1855,9 @@
             const designation = document.getElementById('regEmpDesignation').value;
             const phone = document.getElementById('regEmpPhone').value.trim();
             const rate = Number(document.getElementById('regEmpRate').value) || 1500;
-            const att = document.getElementById('regEmpAtt').value || '15000';
+            const manualAtt = document.getElementById('regEmpAttManual').value.trim();
+            const selectAtt = document.getElementById('regEmpAtt').value;
+            const att = manualAtt !== '' ? manualAtt : (selectAtt !== 'CUSTOM' ? selectAtt : '15000');
             const epf = document.getElementById('regEmpEpf').checked;
             const epfPercent = Number(document.getElementById('regEmpEpfPercent').value) || 8;
 
@@ -2065,6 +2110,25 @@
         // ==========================================
         // 7. EDIT EMPLOYEE MODAL
         // ==========================================
+        function onModalAttSelectChange(val) {
+            const manualInput = document.getElementById('modalEmpAttManual');
+            if (val !== 'CUSTOM') {
+                manualInput.value = val;
+            } else {
+                manualInput.focus();
+            }
+        }
+
+        function onModalAttManualInput(val) {
+            const select = document.getElementById('modalEmpAtt');
+            const trimmed = String(val).trim();
+            if (['15000', '5000', '4000', '2000', '0'].includes(trimmed)) {
+                select.value = trimmed;
+            } else {
+                select.value = 'CUSTOM';
+            }
+        }
+
         function openEmployeeModal(mode, cardId = null, empId = null) {
             currentModalCardId = cardId;
             const modal = document.getElementById('employeeModal');
@@ -2080,7 +2144,13 @@
                         document.getElementById('modalEmpDesignation').value = emp.designation || 'Sewing Machine Operator';
                         document.getElementById('modalEmpPhone').value = emp.phone || '';
                         document.getElementById('modalEmpRate').value = emp.defaultRate;
-                        document.getElementById('modalEmpAtt').value = emp.defaultAttStatus;
+                        const attVal = emp.defaultAttStatus !== undefined && emp.defaultAttStatus !== null ? String(emp.defaultAttStatus) : '15000';
+                        document.getElementById('modalEmpAttManual').value = attVal;
+                        if (['15000', '5000', '4000', '2000', '0'].includes(attVal)) {
+                            document.getElementById('modalEmpAtt').value = attVal;
+                        } else {
+                            document.getElementById('modalEmpAtt').value = 'CUSTOM';
+                        }
                         document.getElementById('modalEmpEpf').checked = emp.epfApplicable;
                         document.getElementById('modalEmpEpfPercent').value = emp.epfPercent || 8;
                         document.getElementById('modalEmpEpfPercent').disabled = !emp.epfApplicable;
@@ -2116,7 +2186,9 @@
             const designation = document.getElementById('modalEmpDesignation').value;
             const phone = document.getElementById('modalEmpPhone').value.trim();
             const rate = Number(document.getElementById('modalEmpRate').value);
-            const att = document.getElementById('modalEmpAtt').value;
+            const manualAtt = document.getElementById('modalEmpAttManual').value.trim();
+            const selectAtt = document.getElementById('modalEmpAtt').value;
+            const att = manualAtt !== '' ? manualAtt : (selectAtt !== 'CUSTOM' ? selectAtt : '15000');
             const epf = document.getElementById('modalEmpEpf').checked;
             const epfPercent = Number(document.getElementById('modalEmpEpfPercent').value) || 8;
 
@@ -2303,7 +2375,7 @@
                 emp.dbEmployeeId = dbEmp.id;
                 emp.name = dbEmp.name;
                 emp.rate = dbEmp.defaultRate;
-                emp.attStatus = dbEmp.defaultAttStatus;
+                emp.attStatus = dbEmp.defaultAttStatus !== undefined && dbEmp.defaultAttStatus !== null ? dbEmp.defaultAttStatus : '15000';
                 emp.epfApplicable = dbEmp.epfApplicable;
                 emp.epfPercent = dbEmp.epfPercent;
                 emp.otRate = getOtRateForBaseRate(dbEmp.defaultRate);
@@ -2311,7 +2383,17 @@
                 const card = document.getElementById(`card-${id}`);
                 if (card) {
                     card.querySelector('.rate-select').value = dbEmp.defaultRate;
-                    card.querySelector('.att-select').value = dbEmp.defaultAttStatus;
+                    const attStr = String(emp.attStatus);
+                    const attSelect = card.querySelector('.att-select');
+                    const attInput = card.querySelector('.att-manual-input');
+                    if (attInput) attInput.value = attStr;
+                    if (attSelect) {
+                        if (['15000', '5000', '4000', '2000', '0'].includes(attStr)) {
+                            attSelect.value = attStr;
+                        } else {
+                            attSelect.value = 'CUSTOM';
+                        }
+                    }
                     card.querySelector('.ot-rate-input').value = emp.otRate;
                     
                     const epfCheckbox = card.querySelector('.epf-checkbox');
@@ -2323,6 +2405,44 @@
                 }
                 saveDataDraft();
             }
+        }
+
+        function onAttSelectChange(id, value) {
+            const emp = employees.find(e => e.id === id);
+            if (!emp) return;
+            const card = document.getElementById(`card-${id}`);
+            if (value !== 'CUSTOM') {
+                emp.attStatus = value;
+                if (card) {
+                    const input = card.querySelector('.att-manual-input');
+                    if (input) input.value = value;
+                }
+            } else {
+                if (card) {
+                    const input = card.querySelector('.att-manual-input');
+                    if (input) input.focus();
+                }
+            }
+            saveDataDraft();
+        }
+
+        function onAttManualInput(id, value) {
+            const emp = employees.find(e => e.id === id);
+            if (!emp) return;
+            emp.attStatus = value;
+            const card = document.getElementById(`card-${id}`);
+            if (card) {
+                const select = card.querySelector('.att-select');
+                if (select) {
+                    const trimmed = String(value).trim();
+                    if (['15000', '5000', '4000', '2000', '0'].includes(trimmed)) {
+                        select.value = trimmed;
+                    } else {
+                        select.value = 'CUSTOM';
+                    }
+                }
+            }
+            saveDataDraft();
         }
 
         function updateEmployee(id, field, value) {
@@ -2435,14 +2555,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Attendance Allowance</label>
-                    <select class="att-select" onchange="updateEmployee('${emp.id}', 'attStatus', this.value)">
-                        <option value="15000" ${emp.attStatus === '15000' ? 'selected' : ''}>15000 (Full Bonus)</option>
-                        <option value="5000" ${emp.attStatus === '5000' ? 'selected' : ''}>5000 (Partial Bonus)</option>
-                        <option value="4000" ${emp.attStatus === '4000' ? 'selected' : ''}>4000 (Basic Allowance)</option>
-                        <option value="2000" ${emp.attStatus === '2000' ? 'selected' : ''}>2000 (Reduced)</option>
-                        <option value="0" ${emp.attStatus === '0' ? 'selected' : ''}>0 (None)</option>
-                    </select>
+                    <label>Attendance Allowance (Rs.)</label>
+                    <div class="att-dual-input">
+                        <select class="att-select" onchange="onAttSelectChange('${emp.id}', this.value)">
+                            <option value="15000" ${String(emp.attStatus) === '15000' ? 'selected' : ''}>15000 (Full)</option>
+                            <option value="5000" ${String(emp.attStatus) === '5000' ? 'selected' : ''}>5000 (Partial)</option>
+                            <option value="4000" ${String(emp.attStatus) === '4000' ? 'selected' : ''}>4000 (Basic)</option>
+                            <option value="2000" ${String(emp.attStatus) === '2000' ? 'selected' : ''}>2000 (Reduced)</option>
+                            <option value="0" ${String(emp.attStatus) === '0' ? 'selected' : ''}>0 (None)</option>
+                            <option value="CUSTOM" ${!['15000', '5000', '4000', '2000', '0'].includes(String(emp.attStatus)) ? 'selected' : ''}>Custom Amount...</option>
+                        </select>
+                        <input type="number" class="att-manual-input" min="0" step="any" placeholder="Manual Rs." value="${emp.attStatus !== undefined && emp.attStatus !== null ? emp.attStatus : 15000}" oninput="onAttManualInput('${emp.id}', this.value)">
+                    </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -2499,7 +2623,9 @@
 
                 const basic = (Number(emp.days) || 0) * (Number(emp.rate) || 0);
                 const otPay = (Number(emp.otHours) || 0) * (Number(emp.otRate) || 0);
-                const attAllowance = emp.attStatus === undefined ? 15000 : Number(emp.attStatus);
+                const attAllowance = (emp.attStatus !== undefined && emp.attStatus !== null && emp.attStatus !== '') 
+                    ? (isNaN(Number(emp.attStatus)) ? 0 : Number(emp.attStatus)) 
+                    : 15000;
                 const epfAmt = emp.epfApplicable ? basic * ((Number(emp.epfPercent) || 8) / 100) : 0;
                 const advance = Number(emp.advance) || 0;
                 const net = basic + otPay + attAllowance - epfAmt - advance;
@@ -2513,7 +2639,7 @@
                     month: selectedMonth,
                     days: Number(emp.days) || 0,
                     rate: Number(emp.rate) || 0,
-                    attStatus: emp.attStatus,
+                    attStatus: emp.attStatus !== undefined && emp.attStatus !== null ? emp.attStatus : '15000',
                     otHours: Number(emp.otHours) || 0,
                     otRate: Number(emp.otRate) || 0,
                     advance: advance,
