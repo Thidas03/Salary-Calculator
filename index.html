@@ -538,6 +538,26 @@
             background-color: #fef2f2;
         }
 
+        .btn-warning {
+            background-color: #d97706;
+            color: #ffffff;
+            border-color: #b45309;
+        }
+
+        .btn-warning:hover {
+            background-color: #b45309;
+        }
+
+        .btn-warning-light {
+            background-color: #fffbeb;
+            color: #b45309;
+            border-color: #fcd34d;
+        }
+
+        .btn-warning-light:hover {
+            background-color: #fef3c7;
+        }
+
         .btn-sm {
             padding: 6px 11px;
             font-size: 12.5px;
@@ -1403,8 +1423,8 @@
                 <section id="section-calculator" class="section-view active">
                     <div class="controls-bar">
                         <div class="controls-group">
-                            <div style="min-width: 160px;">
-                                <label for="salaryMonth">Salary Month</label>
+                            <div style="min-width: 175px;">
+                                <label for="salaryMonth">Salary Month (Paid For)</label>
                                 <input type="month" id="salaryMonth" onchange="onSalaryMonthChange()">
                             </div>
                             <button class="btn btn-secondary" onclick="addEmployeeCard(true)" style="margin-top: 20px;">
@@ -1490,6 +1510,9 @@
                         </div>
 
                         <div class="controls-group">
+                            <button class="btn btn-warning" onclick="migrateOctoberToSeptember(true)" title="Move any records accidentally stored under October to September">
+                                <span class="material-icons" style="font-size: 18px;">swap_horiz</span> Fix Oct → Sep Records
+                            </button>
                             <button class="btn btn-secondary" onclick="loadSalaryHistory()">
                                 <span class="material-icons" style="font-size: 18px;">refresh</span> Refresh
                             </button>
@@ -1680,14 +1703,24 @@
         window.onload = async function () {
             preloadLogo();
 
-            // Default to current month
-            const today = new Date();
-            const currentMonthStr = today.toISOString().slice(0, 7);
-            document.getElementById('salaryMonth').value = currentMonthStr;
-            updateTopbarMonth(currentMonthStr);
-
             // Handle legacy LocalStorage migration
             await migrateLocalStorage();
+
+            // Automatically fix any salary records accidentally entered under October to September
+            await migrateOctoberToSeptember(false);
+
+            // Default to appropriate salary month:
+            // In payroll, during a given month (e.g. October), salaries being entered
+            // and paid are for the PREVIOUS month (e.g. September).
+            const sepRecords = await db.salaries.where('month').equals('2026-09').count();
+            let defaultMonth = '2026-09';
+            if (sepRecords === 0) {
+                const today = new Date();
+                const prevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                defaultMonth = `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, '0')}`;
+            }
+            document.getElementById('salaryMonth').value = defaultMonth;
+            updateTopbarMonth(defaultMonth);
 
             // Populate sample garment employees if directory is completely empty
             const empCount = await db.employees.count();
@@ -2967,8 +3000,8 @@
                     </div>
                     
                     <div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #4b5563; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px;">
-                        <div><strong>Salary Month:</strong> ${salaryMonthStr}</div>
-                        <div><strong>Issued Date:</strong> ${issuedMonthStr}</div>
+                        <div><strong>Salary For:</strong> ${salaryMonthStr}</div>
+                        <div><strong>Issued:</strong> ${issuedMonthStr}</div>
                     </div>
                     
                     <div style="font-size: 15px; margin-bottom: 10px; color: #111827;">
@@ -3091,6 +3124,8 @@
                             await db.employees.bulkAdd(data.employees);
                             await db.salaries.bulkAdd(data.salaries);
                             
+                            await migrateOctoberToSeptember(false);
+                            
                             showToast("Database restored successfully!", "success");
                             updateSidebarBadges();
                             
@@ -3122,6 +3157,85 @@
             ];
             for (const emp of seedData) {
                 await db.employees.add(emp);
+            }
+        }
+
+        // Auto-fix / Migration: Move salary records mistakenly entered under October to September
+        async function migrateOctoberToSeptember(manualTrigger = false) {
+            try {
+                // Find all salary records where month is '2026-10' or ends with '-10'
+                const allSalaries = await db.salaries.toArray();
+                const octRecords = allSalaries.filter(s => s.month && (s.month === '2026-10' || s.month.endsWith('-10')));
+
+                if (octRecords.length === 0) {
+                    if (manualTrigger) {
+                        alert("No October salary records found in database to migrate.");
+                    }
+                    return 0;
+                }
+
+                if (manualTrigger) {
+                    const confirmMsg = `Found ${octRecords.length} salary record(s) currently stored under October.\nDo you want to move them to September?`;
+                    if (!confirm(confirmMsg)) return 0;
+                }
+
+                let updatedCount = 0;
+                for (const rec of octRecords) {
+                    const targetMonth = rec.month.replace(/-10$/, '-09');
+                    // Check if a September record already exists for this employee
+                    const existingSep = await db.salaries.where({ employeeId: Number(rec.employeeId), month: targetMonth }).first();
+                    
+                    if (existingSep && existingSep.id !== rec.id) {
+                        // Update existing September record with this record's calculated values
+                        await db.salaries.update(existingSep.id, {
+                            days: rec.days,
+                            rate: rec.rate,
+                            attStatus: rec.attStatus,
+                            otHours: rec.otHours,
+                            otRate: rec.otRate,
+                            advance: rec.advance,
+                            epfApplicable: rec.epfApplicable,
+                            epfPercent: rec.epfPercent,
+                            basic: rec.basic,
+                            otPay: rec.otPay,
+                            attAllowance: rec.attAllowance,
+                            epfAmt: rec.epfAmt,
+                            net: rec.net,
+                            calculatedAt: rec.calculatedAt || Date.now()
+                        });
+                        // Remove the duplicate October record
+                        await db.salaries.delete(rec.id);
+                    } else {
+                        // Simply update the month to September
+                        await db.salaries.update(rec.id, {
+                            month: targetMonth
+                        });
+                    }
+                    updatedCount++;
+                }
+
+                if (updatedCount > 0) {
+                    const activeSep = octRecords[0].month.replace(/-10$/, '-09');
+                    document.getElementById('salaryMonth').value = activeSep;
+                    updateTopbarMonth(activeSep);
+
+                    if (activeSection === 'calculator') {
+                        await loadMonthData();
+                    } else if (activeSection === 'history') {
+                        await filterHistory();
+                    }
+                    await updateSidebarBadges();
+
+                    showToast(`Successfully moved ${updatedCount} salary record(s) from October to September!`, 'success');
+                }
+
+                return updatedCount;
+            } catch (err) {
+                console.error("Migration error (Oct to Sep):", err);
+                if (manualTrigger) {
+                    alert("Failed to migrate records: " + err.message);
+                }
+                return 0;
             }
         }
 
